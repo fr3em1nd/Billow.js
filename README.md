@@ -10,6 +10,17 @@ A collection of utility functions designed to make developing inside Upvise easi
 
 **Note:** Due to the business wanting to move away from developing inside Upvise, we don't want to spend too much time on this project. However, this library can be developed alongside maintenance of existing works. 
 
+# Technical Requirements
+
+1. Everything needs to be tested (this is crucial)
+2. BILLOW.js must work in Node.js as well as the Browser. This means setting up a build system to combine everything into one minified file.
+3. BILLOW.js will be deployed to different databases by saving the source in `System.globalsettings` (with `id` `billow-js-v-x.x.x`)
+4. This deploy process will be automatic, involving an [upvise-client](VerticalMatters/upvise-client) script as well as a list of all the databases where BILLOW.js should be deployed to.
+4. The version of BILLOW.js to load will be saved in `System.globalsettings` with the id `billow-js-version`
+5. When a new version of BILLOW.js is deployed, it will be saved in the appropriate `System.globalsettings` column and the `billow-js-version` will be updated.
+6. New BILLOW.js versions will be detected by an async process that checks the `billow-js-version` setting against the `BILLOW.version` attribute. If there's a difference then `eval()` the new code. (this part is unsafe but Upvise does it all the time)
+7. BILLOW.js will be initially loaded by a snippet that checks if it exists and then acts accordingly. I'm not 100% sure where in Upvise to put this snippet. One possibility is to put it everywhere that BILLOW.js is used, however I feel like something more economical is possible. This point requires more thought...
+
 # Documentation
 
 To be implemented...
