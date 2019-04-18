@@ -1,0 +1,17 @@
+{
+  "name": "billow-js",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A collection of utility functions designed to make developing inside Upvise easier.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --silent"
+  },
+  "author": "Billow Software",
+  "contributors": [
+    "Nathan McCallum <nathan@billowsoftware.com.au>"
+  ],
+  "dependencies": {
+    "jest": "24.7.1"
+  }
+}
