@@ -4,11 +4,14 @@
 
 const Billow = require('./../index');
 
-test('date.getTimeInDay', () => {
+test('Billow.date.getTimeInDay', () => {
   expect(Billow.date.getTimeInDay(1555595113082)).toEqual(49513082);
+  expect(Billow.date.getTimeInDay(0)).toEqual(0);
+  expect(Billow.date.getTimeInDay(Billow.date.HOUR)).toEqual(Billow.date.HOUR);
+  expect(Billow.date.getTimeInDay(Billow.date.HOUR * 25)).toEqual(Billow.date.HOUR);
 
-  //
-  // The following is not working for some reason
-  //
-  // expect(Billow.date.getTimeInDay(Billow.date.now())).toEqual(Billow.date.now() - Billow.date.today());
+  const now = Billow.date.now();
+  const today = Billow.date.today();
+  const tid = now - today + ((new Date()).getTimezoneOffset() * 60 * 1000);
+  expect(Billow.date.getTimeInDay(now)).toEqual(tid);
 });
