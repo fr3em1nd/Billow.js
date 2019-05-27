@@ -12,6 +12,8 @@ var B = {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+B.date = {};
+
 B.date.SECOND = 1000;
 B.date.MINUTE = 1000 * 60;
 B.date.HOUR = 1000 * 60 * 60;
@@ -32,6 +34,22 @@ B.date.today = function() {
   var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
   return d.getTime();
 };
+
+//
+// Converts a date to a string more appropriate for display to the user (14 July 2017)
+//
+B.date.commonDateString = function(date) {
+  var dateString = "";
+  var tempDate = date;
+
+  if (!(date instanceof Date))
+    tempDate = new Date(parseInt(date));
+
+  dateString = tempDate.toString().split(" ");
+  dateString = dateString[2] + " " + dateString[1] + " " + dateString[3];
+
+  return dateString;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
