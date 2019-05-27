@@ -2,9 +2,7 @@
 // Copyright Platformers (C) 2019
 //
 
-var B = {
-  date: {},
-};
+var B = {};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -53,6 +51,114 @@ B.date.commonDateString = function(date) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// QUERY
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.query = {};
+
+B.query.select = function(table, query, sort) {
+  //
+  // Convert an object query into a query string. Example:
+  // { name: 'Nathan McCallum', company: 'Billow Software'}
+  // Becomes:
+  // 'name="Nathan McCallum" AND company="Billow Software"'
+  //
+  if (typeof query === 'object') {
+    query = B.util.map(Object.keys(query), function(key, i) {
+      var value = query[key];
+      return key + '=' + esc(value);
+    }).join(' AND ');
+  }
+
+  return Query.select(table, '*', query, sort);
+};
+
+B.query.selectOne = function(table, query, sort) {
+  return B.query.select(table, query, sort)[0];
+}
+
+B.query.selectId = function(table, id) {
+  return Query.selectId(table, id);
+};
+
+B.query.selectIn = function(table, field, list, sort) {
+  var query = B.util.createIn(field, list);
+  return B.query.select(table, query, sort);
+};
+
+//
+// Get a list of the keys found in a table
+//
+B.query._getTableKeys = function(tableName) {
+  var tableId = Cache._makeLegacyTable(tableName);
+  var channel = Cache.channels[tableId];
+
+  if (channel) {
+    return Object.keys(channel.columns);
+  } else {
+    console.error('Cannot find table schema for given table name:', tableName);
+    return [];
+  }
+};
+
+//
+// Return an error if any of the given keys are not defined in the db schema
+//
+B.query._checkKeys = function(table, keys) {
+  var tableKeys = B.query._getTableKeys(table);
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if (!tableKeys.includes(key)) {
+      console.error(table + ' does not include the key "' + key + '"');
+      return false;
+    }
+  }
+
+  return true;
+};
+
+B.query._checkTable = function(table) {
+  return !!Cache.channels[Cache._makeLegacyTable(table)];
+}
+
+B.query.insert = function(table, values) {
+  var validTable = B.query._checkTable(table);
+
+  if (!validTable) {
+    console.error('Table "' + table + '" does not exist');
+    return;
+  }
+
+  var validKeys = B.query._checkKeys(table, Object.keys(values));
+
+  if (!validKeys) {
+    return;
+  }
+
+  return Query.insert(table, values);
+};
+
+B.query.update = function(table, id, values) {
+  var validTable = B.query._checkTable(table);
+
+  if (!validTable) {
+    console.error('Table "' + table + '" does not exist');
+    return;
+  }
+
+  var validKeys = B.query._checkKeys(table, Object.keys(values));
+
+  if (!validKeys) {
+    return;
+  }
+
+  return Query.update(table, values, 'id=' + esc(id));
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // UTIL
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,21 +170,21 @@ B.util = {};
 //
 B.util.currency = function(number) {
   return '$' + B.util.displayNumberWithCommas(number);
-},
+};
 
 //
 // Creates a string of a function with paramaters
 //
 B.util.func = function(functionName, paramaters) {
   return functionName + '(' + paramaters.join(',') + ')';
-},
+};
 
 //
 // Create an Engine.eval() string with paramaters
 //
 B.util.engineCall = function(functionName, paramaters) {
   return util._func('Engine.eval', [esc(util._func(functionName, paramaters))]);
-},
+};
 
 //
 // Converts a number into a string with 2 decimal places
@@ -89,7 +195,7 @@ B.util._num = function(number) {
   }
 
   return parseFloat(number).toFixed(2);
-},
+};
 
 //
 // Receives a number and displays it with commas to make it more readable
@@ -116,7 +222,7 @@ B.util.displayNumberWithCommas = function(number) {
   result = result.split("").reverse().join("");
 
   return (negativeNumber ? "-" : "") + result + "." + (components.length > 1 ? components[1] : "00");
-}
+};
 
 //
 // Creates an array of specified attributes in an array of objects.
@@ -132,28 +238,52 @@ B.util.pluck = function(arrayOfObjects, key) {
   }
 
   return result;
-},
+};
 
 //
 // Maps over a collection and applies the transformation function. Returns a new array.
 //
 B.util.map = function(list, mappingFunction) {
-  if (!(Array.isArray(list) && typeof mappingFunction === 'function')) {
+  if (typeof mappingFunction !== 'function') {
+    console.error('No mapping function provided to B.util.map()');
     return list;
   }
 
+  if (Array.isArray(list)) {
+    return B.util.mapArray(list, mappingFunction);
+  } else {
+    return B.util.mapObject(list, mappingFunction);
+  }
+};
+
+B.util.mapArray = function(list, mappingFunction) {
   var result = [];
 
   for (var i = 0; i < list.length; i++) {
-    result.push(mappingFunction(list[i]));
+    var item = list[i];
+    result.push(mappingFunction(item, i));
   }
 
   return result;
-},
+};
+
+B.util.mapObject = function(list, mappingFunction) {
+  var keys = Object.keys(list);
+  var result = {};
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = list[i];
+
+    result[key] = mappingFunction(value, key, i);
+  }
+
+  return result;
+};
 
 B.util.createIn = function(key, list) {
-  return key + ' IN (' + util.map(list, esc).join(', ') + ')';
-},
+  return key + ' IN (' + B.util.map(list, esc).join(', ') + ')';
+};
 
 B.util.expand = function(list, key) {
   var result = {};
@@ -166,7 +296,7 @@ B.util.expand = function(list, key) {
   }
 
   return result;
-},
+};
 
 B.util.expandList = function(list, key) {
   var result = {};
@@ -185,17 +315,25 @@ B.util.expandList = function(list, key) {
   }
 
   return result;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Magically export B to the right places
+// Magically export BILLOW.js to the right places
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-if (global || (module && module.exports)) {
-  console.info('Attaching B.js to the module.exports object');
+try {
   module.exports = B;
-} else {
-  console.info('Attaching B.js to the window object');
+} catch (err) {
+  //
+}
+
+try {
   window.B = B;
+} catch (err) {
+  //
+}
+
+Report.writeDashboard = function() {
+  console.log('BILLOW.js successfully loaded');
 }
