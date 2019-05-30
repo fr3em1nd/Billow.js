@@ -15,3 +15,12 @@ test('Billow.date.getTimeInDay', () => {
   const tid = now - today + ((new Date()).getTimezoneOffset() * 60 * 1000);
   expect(Billow.date.getTimeInDay(now)).toEqual(tid);
 });
+
+test('B.date.commonDateString', () => {
+  expect(Billow.date.commonDateString(0)).toBe('01 Jan 1970');
+  expect(Billow.date.commonDateString(Billow.date.DAY * 10)).toBe('11 Jan 1970');
+  expect(Billow.date.commonDateString(Billow.date.DAY * 100)).toBe('11 Apr 1970');
+  expect(Billow.date.commonDateString(Billow.date.DAY * 1000)).toBe('27 Sep 1972');
+  expect(Billow.date.commonDateString(Billow.date.DAY * 10000)).toBe('19 May 1997');
+  expect(Billow.date.commonDateString(1559213379945)).toBe('30 May 2019');
+});

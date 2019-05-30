@@ -516,10 +516,14 @@ try {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Report.writeDashboard = function() {
-  console.log('BILLOW.js successfully loaded');
-  console.log(B.Forms.select({id: '1B1A76664AA2701E6B4CB87B905373'}));
-  console.log(B.FormTemplates.select());
-  console.log(B.Contacts.select());
-  console.log(B.Companies.select());
-};
+try {
+  Report.writeDashboard = function() {
+    console.log('BILLOW.js successfully loaded');
+    console.log(B.Forms.select({id: '1B1A76664AA2701E6B4CB87B905373'}));
+    console.log(B.FormTemplates.select());
+    console.log(B.Contacts.select());
+    console.log(B.Companies.select());
+  };
+} catch (err) {
+  //
+}
