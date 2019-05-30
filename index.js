@@ -295,6 +295,52 @@ B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// TYPE CASTING UTILS
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.int = function(item) {
+  return parseInt(B.num(item));
+};
+
+B.float = function(item) {
+  return parseFloat(B.num(item));
+};
+
+B.num = function(item) {
+  var num = Number(item);
+
+  if (isNaN(num)) {
+    return 0;
+  } else {
+    return num;
+  }
+};
+
+B.str = function(item) {
+  if (item == undefined || typeof item === 'function' || typeof item === 'object') {
+    return '';
+  }
+
+  var str = String(item);
+
+  if (str === 'NaN') {
+    return '';
+  } else {
+    return str;
+  }
+};
+
+B.arr = function(item) {
+  if (Array.isArray(item)) {
+    return item;
+  } else {
+    return [item];
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // STRING UTILS
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -326,19 +372,19 @@ B.string.padEnd = function(item, num) {
 B.number = {};
 
 B.number.round0 = function(num) {
-  return Math.round(Number(num || 0));
+  return B.num(num).toFixed(0);
 };
 
 B.number.round1 = function(num) {
-  return Number(num || 0).toFixed(1);
+  return B.num(num).toFixed(1);
 };
 
 B.number.round2 = function(num) {
-  return Number(num || 0).toFixed(2);
+  return B.num(num).toFixed(2);
 };
 
 B.number.commify = function(num) {
-  var parts = String(num).split('.');
+  var parts = B.str(num).split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ', ');
   return parts.join('.');
 };
@@ -359,7 +405,7 @@ B.number.commify2 = function(num) {
 // Convert a float to a string (with a dollar sign, comma separated)
 //
 B.number.currency = function(number) {
-  return '$' + B.util.displayNumberWithCommas(number);
+  return '$' + B.commify2(number);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,33 +428,6 @@ B.util.func = function(functionName, paramaters) {
 //
 B.util.engineCall = function(functionName, paramaters) {
   return util._func('Engine.eval', [esc(util._func(functionName, paramaters))]);
-};
-
-//
-// Receives a number and displays it with commas to make it more readable
-//
-B.util.displayNumberWithCommas = function(number) {
-  if (isNaN(number) == true) number = 0;
-  var components = number.toFixed(2).split(".");
-  var result = "";
-  var count = 0;
-  var negativeNumber = number < 0;
-
-  if (negativeNumber)
-    components[0] = components[0].substring(1, number.length);
-
-  for (var i = components[0].length - 1; i >= 0; i -= 1) {
-    if (count % 3 == 0 && count != 0)
-      result += ",";
-
-    result += components[0].charAt(i);
-    count += 1;
-  }
-
-  //The string is currently reversed, we need to make sure that we now put it the right way
-  result = result.split("").reverse().join("");
-
-  return (negativeNumber ? "-" : "") + result + "." + (components.length > 1 ? components[1] : "00");
 };
 
 //
