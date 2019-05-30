@@ -257,6 +257,19 @@ B.Form = function Form(item) {
 };
 B.Form.prototype = Object.create(B.QueryItem.prototype);
 B.Form.prototype.constructor = B.QueryItem;
+
+B.Form.prototype.getValues = function() {
+  return JSON.parse(this.value || '{}');
+};
+
+B.Form.prototype.setValues = function(newValues) {
+  this.value = JSON.stringify(newValues);
+};
+
+B.Form.prototype.getSubforms = function(field) {
+  return B.Forms.select({linkedid: this.id + ':' + field}, 'date DESC');
+};
+
 B.Forms = new B.QueryFactory('Forms.forms', B.Form);
 
 B.FormTemplate = function FormTemplate(item) {
