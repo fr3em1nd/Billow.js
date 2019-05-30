@@ -173,8 +173,6 @@ B.QueryFactory.prototype.select = function(query, sort) {
   return new B.ResultSet(this.table, items, this.carrier, query, sort);
 };
 
-B.QueryFactory.prototype.selectId = function() {
-  //
 B.QueryFactory.prototype.selectId = function(id) {
   var item = B.query.selectId(this.table, id);
 
@@ -250,7 +248,6 @@ B.QueryItem.prototype.onSaveItem = function(item) {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 B.Form = function Form(item) {
   B.QueryItem.call(this, item);
   this._table = 'Forms.forms';
@@ -307,9 +304,17 @@ B.util = {};
 //
 // Convert a float to a string (with a dollar sign, comma separated)
 //
-B.util.currency = function(number) {
+B.number.currency = function(number) {
   return '$' + B.util.displayNumberWithCommas(number);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// UTIL
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.util = {};
 
 //
 // Creates a string of a function with paramaters
@@ -467,6 +472,9 @@ try {
 } catch (err) {
   //
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Report.writeDashboard = function() {
   console.log('BILLOW.js successfully loaded');
