@@ -159,6 +159,122 @@ B.query.update = function(table, id, values) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// QUERY FACTORY
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.QueryFactory = function QueryFactory(table, carrier) {
+  this.table = table;
+  this.carrier = carrier;
+};
+
+B.QueryFactory.prototype.select = function(query, sort) {
+  var items = B.query.select(this.table, query, sort);
+  return new B.ResultSet(this.table, items, this.carrier, query, sort);
+};
+
+B.QueryFactory.prototype.selectId = function() {
+  //
+};
+
+B.QueryFactory.prototype.selectIn = function() {
+  //
+};
+
+B.ResultSet = function ResultSet(table, items, Carrier, query, sort) {
+  this.table = table;
+  this.query = query || '';
+  this.sort = sort || '';
+  this.items = [];
+
+  for (var i = 0; i < items.length; i++) {
+    this.items.push(new Carrier(items[i]));
+  }
+};
+
+B.defineQueryItemProperty = function(obj, key) {
+  Object.defineProperty(obj, key, {
+    get: function() {
+      return this._item[key];
+    },
+    set: function(newValue) {
+      this._item[key] = newValue;
+      return newValue;
+    }
+  });
+}
+
+B.QueryItem = function QueryItem(item) {
+  this._table = '';
+  this._item = item;
+
+  var keys = Object.keys(item);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    this[key] = item[key];
+    B.defineQueryItemProperty(this, key);
+  }
+};
+
+B.QueryItem.prototype.save = function() {
+  console.log('Saving item to db', this._table, this._item);
+};
+
+//
+// This function is called when an item is received.
+//
+B.QueryItem.prototype.onReceiveItem = function(item) {
+  return item;
+};
+
+//
+// This function is called when an item is saved.
+//
+B.QueryItem.prototype.onSaveItem = function(item) {
+  return item;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ORM INTERFACE
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+B.Form = function Form(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Forms.forms';
+};
+B.Form.prototype = Object.create(B.QueryItem.prototype);
+B.Form.prototype.constructor = B.QueryItem;
+B.Forms = new B.QueryFactory('Forms.forms', B.Form);
+
+B.FormTemplate = function FormTemplate(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Forms.templates';
+};
+B.FormTemplate.prototype = Object.create(B.QueryItem.prototype);
+B.FormTemplate.prototype.constructor = B.QueryItem;
+B.FormTemplates = new B.QueryFactory('Forms.templates', B.FormTemplate);
+
+B.Contact = function Contact(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.contacts';
+};
+B.Contact.prototype = Object.create(B.QueryItem.prototype);
+B.Contact.prototype.constructor = B.QueryItem;
+B.Contacts = new B.QueryFactory('Contacts.Contacts', B.Contact);
+
+B.Company = function Company(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.companies';
+};
+B.Company.prototype = Object.create(B.QueryItem.prototype);
+B.Company.prototype.constructor = B.QueryItem;
+B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // UTIL
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,4 +452,8 @@ try {
 
 Report.writeDashboard = function() {
   console.log('BILLOW.js successfully loaded');
-}
+  console.log(B.Forms.select({id: '1B1A76664AA2701E6B4CB87B905373'}));
+  console.log(B.FormTemplates.select());
+  console.log(B.Contacts.select());
+  console.log(B.Companies.select());
+};
