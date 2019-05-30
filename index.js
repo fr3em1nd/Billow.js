@@ -303,17 +303,6 @@ B.util.engineCall = function(functionName, paramaters) {
 };
 
 //
-// Converts a number into a string with 2 decimal places
-//
-B.util._num = function(number) {
-  if (!number) {
-    return '0.00';
-  }
-
-  return parseFloat(number).toFixed(2);
-};
-
-//
 // Receives a number and displays it with commas to make it more readable
 //
 B.util.displayNumberWithCommas = function(number) {
