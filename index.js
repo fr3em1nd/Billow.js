@@ -198,6 +198,10 @@ B.ResultSet = function ResultSet(table, items, Carrier, query, sort) {
   }
 };
 
+B.ResultSet.prototype.each = function(callback) {
+  B.util.each(this.items, callback);
+};
+
 B.defineQueryItemProperty = function(obj, key) {
   Object.defineProperty(obj, key, {
     get: function() {
@@ -349,6 +353,12 @@ B.util.pluck = function(arrayOfObjects, key) {
   }
 
   return result;
+};
+
+B.util.each = function(list, callback) {
+  for (var i = 0; i < list.length; i++) {
+    callback(list[i]);
+  }
 };
 
 //
