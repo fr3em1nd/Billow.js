@@ -295,11 +295,51 @@ B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// UTIL
+// STRING UTILS
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.util = {};
+B.string = {};
+
+B.string.pad = function(str, num) {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// NUMBER UTILS
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.number = {};
+
+B.number.round0 = function(num) {
+  return Math.round(Number(num || 0));
+};
+
+B.number.round1 = function(num) {
+  return Number(num || 0).toFixed(1);
+};
+
+B.number.round2 = function(num) {
+  return Number(num || 0).toFixed(2);
+};
+
+B.number.commify = function(num) {
+  var parts = String(num).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ', ');
+  return parts.join('.');
+};
+
+B.number.commify0 = function(num) {
+  return B.number.commify(B.number.round0(num));
+};
+
+B.number.commify1 = function(num) {
+  return B.number.commify(B.number.round1(num));
+};
+
+B.number.commify2 = function(num) {
+  return B.number.commify(B.number.round2(num));
+};
 
 //
 // Convert a float to a string (with a dollar sign, comma separated)
