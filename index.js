@@ -301,7 +301,21 @@ B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
 
 B.string = {};
 
-B.string.pad = function(str, num) {};
+B.string.padStart = function(item, num) {
+  var str = String(item);
+  while (str.length < num) {
+    str = '0' + str;
+  }
+  return str;
+};
+
+B.string.padEnd = function(item, num) {
+  var str = String(item);
+  while (str.length < num) {
+    str = str + '0';
+  }
+  return str;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
