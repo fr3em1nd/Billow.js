@@ -175,6 +175,12 @@ B.QueryFactory.prototype.select = function(query, sort) {
 
 B.QueryFactory.prototype.selectId = function() {
   //
+B.QueryFactory.prototype.selectId = function(id) {
+  var item = B.query.selectId(this.table, id);
+
+  if (item) {
+    return new this.carrier(item);
+  }
 };
 
 B.QueryFactory.prototype.selectIn = function() {
