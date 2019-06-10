@@ -5,7 +5,7 @@
   "description": "A collection of utility functions designed to make developing inside Upvise easier.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent"
+    "test": "jest --silent --coverage"
   },
   "author": "Billow Software",
   "contributors": [
