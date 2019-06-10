@@ -248,6 +248,60 @@ B.QueryItem.prototype.onSaveItem = function(item) {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//
+// CONTACTS
+//
+
+B.Contact = function Contact(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.contacts';
+};
+B.Contact.prototype = Object.create(B.QueryItem.prototype);
+B.Contact.prototype.constructor = B.QueryItem;
+
+B.Company = function Company(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.companies';
+};
+B.Company.prototype = Object.create(B.QueryItem.prototype);
+B.Company.prototype.constructor = B.QueryItem;
+
+B.ContactGroup = function ContactGroup(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.groups';
+};
+B.ContactGroup.prototype = Object.create(B.QueryItem.prototype);
+B.ContactGroup.prototype.constructor = B.QueryItem;
+
+B.ContactRegion = function ContactRegion(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.regions';
+};
+B.ContactRegion.prototype = Object.create(B.QueryItem.prototype);
+B.ContactRegion.prototype.constructor = B.QueryItem;
+
+B.ContactMailTemplate = function ContactMailTemplate(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Contacts.mailtemplates';
+};
+B.ContactMailTemplate.prototype = Object.create(B.QueryItem.prototype);
+B.ContactMailTemplate.prototype.constructor = B.QueryItem;
+
+//
+// CUSTOM FIELDS
+//
+
+B.CustomField = function CustomField(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Notes.fields';
+};
+B.CustomField.prototype = Object.create(B.QueryItem.prototype);
+B.CustomField.prototype.constructor = B.QueryItem;
+
+//
+// FORMS
+//
+
 B.Form = function Form(item) {
   B.QueryItem.call(this, item);
   this._table = 'Forms.forms';
@@ -278,7 +332,6 @@ B.Form.prototype.getSubforms = function(field) {
   return B.Forms.select({linkedid: this.id + ':' + field}, 'date DESC');
 };
 
-
 B.FormTemplate = function FormTemplate(item) {
   B.QueryItem.call(this, item);
   this._table = 'Forms.templates';
@@ -286,19 +339,136 @@ B.FormTemplate = function FormTemplate(item) {
 B.FormTemplate.prototype = Object.create(B.QueryItem.prototype);
 B.FormTemplate.prototype.constructor = B.QueryItem;
 
-B.Contact = function Contact(item) {
+B.FormField = function FormField(item) {
   B.QueryItem.call(this, item);
-  this._table = 'Contacts.contacts';
+  this._table = 'Forms.fields';
 };
-B.Contact.prototype = Object.create(B.QueryItem.prototype);
-B.Contact.prototype.constructor = B.QueryItem;
+B.FormField.prototype = Object.create(B.QueryItem.prototype);
+B.FormField.prototype.constructor = B.QueryItem;
 
-B.Company = function Company(item) {
+B.FormGroup = function FormGroup(item) {
   B.QueryItem.call(this, item);
-  this._table = 'Contacts.companies';
+  this._table = 'Forms.groups';
 };
-B.Company.prototype = Object.create(B.QueryItem.prototype);
-B.Company.prototype.constructor = B.QueryItem;
+B.FormGroup.prototype = Object.create(B.QueryItem.prototype);
+B.FormGroup.prototype.constructor = B.QueryItem;
+
+B.FormState = function FormState(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Forms.states';
+};
+B.FormState.prototype = Object.create(B.QueryItem.prototype);
+B.FormState.prototype.constructor = B.QueryItem;
+
+//
+// JOBS
+//
+
+B.Job = function Job(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Jobs.jobs';
+};
+B.Job.prototype = Object.create(B.QueryItem.prototype);
+B.Job.prototype.constructor = B.QueryItem;
+
+B.JobGroup = function JobGroup(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Jobs.groups';
+};
+B.JobGroup.prototype = Object.create(B.QueryItem.prototype);
+B.JobGroup.prototype.constructor = B.QueryItem;
+
+B.JobProduct = function JobGroup(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Jobs.jobproducts';
+};
+B.JobProduct.prototype = Object.create(B.QueryItem.prototype);
+B.JobProduct.prototype.constructor = B.QueryItem;
+
+//
+// PROJECTS
+//
+
+B.Project = function Project(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.projects';
+};
+B.Project.prototype = Object.create(B.QueryItem.prototype);
+B.Project.prototype.constructor = B.QueryItem;
+
+B.ProjectAssetGroup = function ProjectAssetGroup(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.assetgroups';
+};
+B.ProjectAssetGroup.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectAssetGroup.prototype.constructor = B.QueryItem;
+
+B.ProjectGroup = function ProjectGroup(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.groups';
+};
+B.ProjectGroup.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectGroup.prototype.constructor = B.QueryItem;
+
+B.ProjectMilestone = function ProjectMilestone(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.milestones';
+};
+B.ProjectMilestone.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectMilestone.prototype.constructor = B.QueryItem;
+
+B.ProjectMilestoneTemplate = function ProjectMilestoneTemplate(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.milestonetemplates';
+};
+B.ProjectMilestoneTemplate.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectMilestoneTemplate.prototype.constructor = B.QueryItem;
+
+B.ProjectActivity = function ProjectActivity(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.projectactivities';
+};
+B.ProjectActivity.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectActivity.prototype.constructor = B.QueryItem;
+
+B.ProjectProduct = function ProjectProduct(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.projectproducts';
+};
+B.ProjectProduct.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectProduct.prototype.constructor = B.QueryItem;
+
+B.ProjectTemplate = function ProjectTemplate(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.projectemplates';
+};
+B.ProjectTemplate.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectTemplate.prototype.constructor = B.QueryItem;
+
+B.ProjectStage = function ProjectStage(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.stages';
+};
+B.ProjectStage.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectStage.prototype.constructor = B.QueryItem;
+
+B.ProjectTaskTemplate = function ProjectTaskTemplate(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.tasktemplates';
+};
+B.ProjectTaskTemplate.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectTaskTemplate.prototype.constructor = B.QueryItem;
+
+B.ProjectAsset = function ProjectAsset(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.assets';
+};
+B.ProjectAsset.prototype = Object.create(B.QueryItem.prototype);
+B.ProjectAsset.prototype.constructor = B.QueryItem;
+
+//
+// SALES
+//
 
 B.Quote = function Quote(item) {
   B.QueryItem.call(this, item);
@@ -353,27 +523,36 @@ B.QuoteProduct.prototype.getCatalogProduct = function() {
   return B.CatalogProducts.selectId(this.productid);
 };
 
-B.Job = function Job(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Jobs.jobs';
-};
-B.Job.prototype = Object.create(B.QueryItem.prototype);
-B.Job.prototype.constructor = B.QueryItem;
-
-B.Project = function Project(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.projects';
-};
-B.Project.prototype = Object.create(B.QueryItem.prototype);
-B.Project.prototype.constructor = B.QueryItem;
+//
+// QUERY FACTORY
+//
 
 B.CatalogProducts = new B.QueryFactory('Sales.products', B.CatalogProduct);
 B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
+B.ContactGroups = new B.QueryFactory('Contacts.groups', B.ContactGroup);
+B.ContactMailTemplates = new B.QueryFactory('Contacts.mailtemplates', B.ContactMailTemplate);
+B.ContactRegions = new B.QueryFactory('Contacts.regions', B.ContactRegion);
 B.Contacts = new B.QueryFactory('Contacts.Contacts', B.Contact);
+B.CustomFields = new B.QueryFactory('Notes.fields', B.CustomField);
+B.FormFields = new B.QueryFactory('Forms.fields', B.FormField);
+B.FormGroups = new B.QueryFactory('Forms.groups', B.FormGroup);
 B.Forms = new B.QueryFactory('Forms.forms', B.Form);
+B.FormStates = new B.QueryFactory('Forms.state', B.FormState);
 B.FormTemplates = new B.QueryFactory('Forms.templates', B.FormTemplate);
+B.JobGroups = new B.QueryFactory('Jobs.groups', B.JobGroup);
+B.JobProducts = new B.QueryFactory('Jobs.jobproducts', B.JobProduct);
 B.Jobs = new B.QueryFactory('Jobs.jobs', B.Job);
+B.ProjectActivities = new B.QueryFactory('Projects.projectactivities', B.ProjectActivity);
+B.ProjectAssetGroups = new B.QueryFactory('Projects.assetgroups', B.ProjectAssetGroup);
+B.ProjectAssets = new B.QueryFactory('Projects.assets', B.ProjectAsset);
+B.ProjectGroups = new B.QueryFactory('Projects.groups', B.ProjectGroup);
+B.ProjectMilestones = new B.QueryFactory('Projects.milestones', B.ProjectMilestone);
+B.ProjectMilestoneTemplates = new B.QueryFactory('Projects.milestonetemplates', B.ProjectMilestoneTemplate);
+B.ProjectProducts = new B.QueryFactory('Projects.projectproducts', B.ProjectProduct);
 B.Projects = new B.QueryFactory('Projects.projects', B.Project);
+B.ProjectStages = new B.QueryFactory('Projects.stages', B.ProjectStage);
+B.ProjectTaskTemplates = new B.QueryFactory('Projects.tasktemplates', B.ProjectTaskTemplate);
+B.ProjectTemplates = new B.QueryFactory('Projects.templates', B.ProjectTemplate);
 B.QuoteProducts = new B.QueryFactory('Sales.quoteproducts', B.QuoteProduct);
 B.Quotes = new B.QueryFactory('Sales.quotes', B.Quote);
 
