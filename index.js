@@ -263,11 +263,21 @@ B.Form.prototype.setValues = function(newValues) {
   this.value = JSON.stringify(newValues);
 };
 
+B.Form.prototype.getValue = function(ref) {
+  var vals = this.getValues();
+  return vals[ref];
+};
+
+B.Form.prototype.setValue = function(ref) {
+  var vals = this.getValues();
+  vals[ref] = ref;
+  this.setValues(vals);
+};
+
 B.Form.prototype.getSubforms = function(field) {
   return B.Forms.select({linkedid: this.id + ':' + field}, 'date DESC');
 };
 
-B.Forms = new B.QueryFactory('Forms.forms', B.Form);
 
 B.FormTemplate = function FormTemplate(item) {
   B.QueryItem.call(this, item);
@@ -275,7 +285,6 @@ B.FormTemplate = function FormTemplate(item) {
 };
 B.FormTemplate.prototype = Object.create(B.QueryItem.prototype);
 B.FormTemplate.prototype.constructor = B.QueryItem;
-B.FormTemplates = new B.QueryFactory('Forms.templates', B.FormTemplate);
 
 B.Contact = function Contact(item) {
   B.QueryItem.call(this, item);
@@ -283,7 +292,6 @@ B.Contact = function Contact(item) {
 };
 B.Contact.prototype = Object.create(B.QueryItem.prototype);
 B.Contact.prototype.constructor = B.QueryItem;
-B.Contacts = new B.QueryFactory('Contacts.Contacts', B.Contact);
 
 B.Company = function Company(item) {
   B.QueryItem.call(this, item);
@@ -291,7 +299,83 @@ B.Company = function Company(item) {
 };
 B.Company.prototype = Object.create(B.QueryItem.prototype);
 B.Company.prototype.constructor = B.QueryItem;
+
+B.Quote = function Quote(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Sales.quotes';
+};
+B.Quote.prototype = Object.create(B.QueryItem.prototype);
+B.Quote.prototype.constructor = B.QueryItem;
+
+B.Quote.prototype.getProducts = function() {
+  return B.QuoteProducts.select({
+    quoteid: this.id,
+  });
+};
+
+B.CatalogProduct = function CatalogProduct(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Sales.products';
+};
+B.CatalogProduct.prototype = Object.create(B.QueryItem.prototype);
+B.CatalogProduct.prototype.constructor = B.QueryItem;
+
+B.CatalogProduct.prototype.getCustom = function(ref) {
+  var custom = JSON.parse(this.custom || '{}');
+  return custom[ref];
+};
+
+B.CatalogProduct.prototype.setCustom = function(ref, value) {
+  var custom = JSON.parse(this.custom || '{}');
+  custom[ref] = value;
+  this.custom = JSON.stringify(custom);
+};
+
+B.QuoteProduct = function QuoteProduct(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Sales.quoteproducts';
+};
+B.QuoteProduct.prototype = Object.create(B.QueryItem.prototype);
+B.QuoteProduct.prototype.constructor = B.QueryItem;
+
+B.QuoteProduct.prototype.getCustom = function(ref) {
+  var custom = JSON.parse(this.custom || '{}');
+  return custom[ref];
+};
+
+B.QuoteProduct.prototype.setCustom = function(ref, value) {
+  var custom = JSON.parse(this.custom || '{}');
+  custom[ref] = value;
+  this.custom = JSON.stringify(custom);
+};
+
+B.QuoteProduct.prototype.getCatalogProduct = function() {
+  return B.CatalogProducts.selectId(this.productid);
+};
+
+B.Job = function Job(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Jobs.jobs';
+};
+B.Job.prototype = Object.create(B.QueryItem.prototype);
+B.Job.prototype.constructor = B.QueryItem;
+
+B.Project = function Project(item) {
+  B.QueryItem.call(this, item);
+  this._table = 'Projects.projects';
+};
+B.Project.prototype = Object.create(B.QueryItem.prototype);
+B.Project.prototype.constructor = B.QueryItem;
+
+B.CatalogProducts = new B.QueryFactory('Sales.products', B.CatalogProduct);
 B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
+B.Contacts = new B.QueryFactory('Contacts.Contacts', B.Contact);
+B.Forms = new B.QueryFactory('Forms.forms', B.Form);
+B.FormTemplates = new B.QueryFactory('Forms.templates', B.FormTemplate);
+B.Jobs = new B.QueryFactory('Jobs.jobs', B.Job);
+B.Projects = new B.QueryFactory('Projects.projects', B.Project);
+B.QuoteProducts = new B.QueryFactory('Sales.quoteproducts', B.QuoteProduct);
+B.Quotes = new B.QueryFactory('Sales.quotes', B.Quote);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
