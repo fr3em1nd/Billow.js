@@ -4,7 +4,7 @@
 
 const B = require('../index');
 
-test('rounding functions', () => {
+test('B.number.round()', () => {
   expect(B.number.round0(1.555555555)).toBe('2');
   expect(B.number.round1(1.555555555)).toBe('1.6');
   expect(B.number.round2(1.555555555)).toBe('1.56');
@@ -34,9 +34,17 @@ test('rounding functions', () => {
   expect(B.number.round2(function(){})).toBe('0.00');
 });
 
-test('commifying functions', () => {
+test('B.number.commify()', () => {
   expect(B.number.commify(123456789.123456)).toBe('123,456,789.123456');
   expect(B.number.commify0(123456789.123456)).toBe('123,456,789');
   expect(B.number.commify1(123456789.123456)).toBe('123,456,789.1');
   expect(B.number.commify2(123456789.123456)).toBe('123,456,789.12');
+});
+
+test('B.number.currency()', () => {
+  expect(B.number.currency(1234)).toBe('$1,234.00');
+  expect(B.number.currency(0)).toBe('$0.00');
+  expect(B.number.currency('')).toBe('$0.00');
+  expect(B.number.currency({})).toBe('$0.00');
+  expect(B.number.currency([])).toBe('$0.00');
 });
