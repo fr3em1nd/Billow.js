@@ -35,8 +35,8 @@ test('rounding functions', () => {
 });
 
 test('commifying functions', () => {
-  expect(B.number.commify(123456789.123456)).toBe('123, 456, 789.123456');
-  expect(B.number.commify0(123456789.123456)).toBe('123, 456, 789');
-  expect(B.number.commify1(123456789.123456)).toBe('123, 456, 789.1');
-  expect(B.number.commify2(123456789.123456)).toBe('123, 456, 789.12');
+  expect(B.number.commify(123456789.123456)).toBe('123,456,789.123456');
+  expect(B.number.commify0(123456789.123456)).toBe('123,456,789');
+  expect(B.number.commify1(123456789.123456)).toBe('123,456,789.1');
+  expect(B.number.commify2(123456789.123456)).toBe('123,456,789.12');
 });
