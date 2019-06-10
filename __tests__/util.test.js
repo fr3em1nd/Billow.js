@@ -28,3 +28,7 @@ test('B.util.pluck()', () => {
   expect(B.util.pluck(collection, 'id')).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   expect(B.util.pluck(collection.reverse(), 'id')).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
 });
+
+test('B.util.esc()', () => {
+  expect(B.util.esc('test')).toBe("'test'");
+});

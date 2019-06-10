@@ -511,7 +511,7 @@ B.util.func = function(functionName, paramaters) {
 // Create an Engine.eval() string with paramaters
 //
 B.util.engineCall = function(functionName, paramaters) {
-  return util._func('Engine.eval', [esc(util._func(functionName, paramaters))]);
+  return util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
 };
 
 //
@@ -578,7 +578,7 @@ B.util.mapObject = function(list, mappingFunction) {
 };
 
 B.util.createIn = function(key, list) {
-  return key + ' IN (' + B.util.map(list, esc).join(', ') + ')';
+  return key + ' IN (' + B.util.map(list, B.util.esc).join(', ') + ')';
 };
 
 B.util.expand = function(list, key) {
@@ -608,6 +608,37 @@ B.util.expandList = function(list, key) {
         result[itemKey] = [item];
       }
     }
+  }
+
+  return result;
+};
+
+B.util.esc = function(str) {
+  return B.util._quotation(B.str(str), "'", "'");
+};
+
+B.util._quotation = function(value, open, close) {
+  var result;
+  var index;
+  var length;
+
+  open = open || "'";
+  close = close || open;
+
+  if (typeof value === 'string') {
+    return open + value + close;
+  }
+
+  if (typeof value !== 'object' || !('length' in value)) {
+    throw new Error('Expected string or array of strings');
+  }
+
+  result = [];
+  length = value.length;
+  index = -1;
+
+  while (++index < length) {
+    result[index] = quotation(value[index], open, close)
   }
 
   return result;
