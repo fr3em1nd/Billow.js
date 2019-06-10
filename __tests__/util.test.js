@@ -31,4 +31,6 @@ test('B.util.pluck()', () => {
 
 test('B.util.esc()', () => {
   expect(B.util.esc('test')).toBe("'test'");
+  expect(B.util.esc(500)).toBe("'500'");
+  expect(B.util.esc({})).toBe("''");
 });
