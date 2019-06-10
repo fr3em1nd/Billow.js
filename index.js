@@ -385,7 +385,7 @@ B.number.round2 = function(num) {
 
 B.number.commify = function(num) {
   var parts = B.str(num).split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ', ');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
 };
 
