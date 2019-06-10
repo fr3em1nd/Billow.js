@@ -432,7 +432,7 @@ B.arr = function(item) {
 B.string = {};
 
 B.string.padStart = function(item, num) {
-  var str = String(item);
+  var str = B.str(item);
   while (str.length < num) {
     str = '0' + str;
   }
@@ -440,7 +440,7 @@ B.string.padStart = function(item, num) {
 };
 
 B.string.padEnd = function(item, num) {
-  var str = String(item);
+  var str = B.str(item);
   while (str.length < num) {
     str = str + '0';
   }
@@ -489,7 +489,7 @@ B.number.commify2 = function(num) {
 // Convert a float to a string (with a dollar sign, comma separated)
 //
 B.number.currency = function(number) {
-  return '$' + B.commify2(number);
+  return '$' + B.number.commify2(number);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
