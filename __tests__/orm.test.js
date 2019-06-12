@@ -2,14 +2,20 @@
 // Copyright Platformers (C) 2019
 //
 
-// const fs = require('fs');
-// const path = require('path');
+const path = require('path');
 const expect = require('expect-puppeteer');
-// const billowSrc = fs.readFileSync(path.join(__dirname, '..', 'index.js'));
 
 beforeAll(async () => {
   jest.setTimeout(300 * 1000);
+  await page.setViewport({
+    width: 1280,
+    height: 720,
+  });
   await page.goto('https://www.upvise.com/uws', {waitUntil: 'domcontentloaded'});
+  await page.addScriptTag({
+    path: path.join(__dirname, '..', 'index.js'),
+    type: 'text/javascript',
+  });
 });
 
 test('it should load upvise', async () => {
@@ -21,17 +27,12 @@ test('it should load upvise', async () => {
   await page.waitForSelector('#fileElem', { timeout: 300 * 1000 });
   await page.screenshot({path: 'test3.png'});
 
-  //
-  // Failed attempt to use Billow.js in the headless environment:
-  //
-  // const forms = await page.evaluate((billowSrc) => {
-  //   eval(billowSrc); // potentially evil but this is a test environment (for now)
-  //   return window.B.Forms.select({templateid: '25023FEA903539EA66D61A96D6775C'}, 'date')
-  // }, billowSrc);
-
   const forms = await page.evaluate(() => {
-    return Query.select('Forms.forms', '*', 'templateid="25023FEA903539EA66D61A96D6775C"', 'date');
+    const res = B.Forms.select({templateid: '25023FEA903539EA66D61A96D6775C'}, 'date');
+    return res.toObject();
   });
 
-  console.log(forms);
+  console.log('all forms', forms);
+  console.log('first form', forms[0]);
+  console.log('number of forms', forms.length);
 });
