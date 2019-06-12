@@ -200,6 +200,20 @@ B.ResultSet.prototype.each = function(callback) {
   B.util.each(this.items, callback);
 };
 
+B.ResultSet.prototype.map = function(callback) {
+  return B.util.map(this.items, callback);
+};
+
+B.ResultSet.prototype.toObject = function() {
+  return this.map(function(queryItem) {
+    return queryItem.toObject();
+  });
+};
+
+B.ResultSet.prototype.toJSON = function() {
+  return JSON.stringify(this.toObject());
+};
+
 B.defineQueryItemProperty = function(obj, key) {
   Object.defineProperty(obj, key, {
     get: function() {
@@ -240,6 +254,14 @@ B.QueryItem.prototype.onReceiveItem = function(item) {
 //
 B.QueryItem.prototype.onSaveItem = function(item) {
   return item;
+};
+
+B.QueryItem.prototype.toObject = function() {
+  return this._item;
+};
+
+B.QueryItem.prototype.toJSON = function() {
+  return JSON.stringify(this.toObject());
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
