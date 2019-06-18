@@ -4,50 +4,7 @@
 
 var B = {};
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// DATE
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-B.date = {};
-
-B.date.SECOND = 1000;
-B.date.MINUTE = 1000 * 60;
-B.date.HOUR = 1000 * 60 * 60;
-B.date.DAY = 1000 * 60 * 60 * 24;
-B.date.WEEK = 1000 * 60 * 60 * 24 * 7;
-
-B.date.getTimeInDay = function(time) {
-  var d = new Date(time);
-  return d.getTime() % B.date.DAY;
-};
-
-B.date.now = function() {
-  return (new Date()).getTime();
-};
-
-B.date.today = function() {
-  var now = new Date();
-  var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-  return d.getTime();
-};
-
-//
-// Converts a date to a string more appropriate for display to the user (14 July 2017)
-//
-B.date.commonDateString = function(date) {
-  var dateString = "";
-  var tempDate = date;
-
-  if (!(date instanceof Date))
-    tempDate = new Date(parseInt(date));
-
-  dateString = tempDate.toString().split(" ");
-  dateString = dateString[2] + " " + dateString[1] + " " + dateString[3];
-
-  return dateString;
-}
+B.VERSION = '1.0.0';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -580,6 +537,55 @@ B.Quotes = new B.QueryFactory('Sales.quotes', B.Quote);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// DATE
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.date = {};
+
+B.date.SECOND = 1000;
+B.date.MINUTE = 1000 * 60;
+B.date.HOUR = 1000 * 60 * 60;
+B.date.DAY = 1000 * 60 * 60 * 24;
+B.date.WEEK = 1000 * 60 * 60 * 24 * 7;
+
+B.date.getTimeInDay = function(time) {
+  var d = new Date(time);
+  return d.getTime() % B.date.DAY;
+};
+
+B.date.now = function() {
+  return (new Date()).getTime();
+};
+
+B.date.today = function() {
+  var now = new Date();
+  var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  return d.getTime();
+};
+
+//
+// Converts a date to a string more appropriate for display to the user (14 Jul 2017)
+//
+B.date.commonDateString = function(date) {
+  var dateString = "";
+  var tempDate = date;
+
+  if (!(date instanceof Date)) {
+    tempDate = new Date(parseInt(date));
+  }
+
+  dateString = tempDate.toString().split(" ");
+  dateString = dateString[2] + " " + dateString[1] + " " + dateString[3];
+
+  return dateString;
+};
+
+B.date.dayOfWeek = function() {
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // TYPE CASTING UTILS
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -695,11 +701,144 @@ B.number.currency = function(number) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// FORMAT
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.format = {};
+
+B.format.commonDateString = B.date.commonDateString;
+B.format.currency = B.number.currency;
+B.format.padStart = B.string.padStart;
+B.format.padEnd = B.string.padEnd;
+
+B.format.shortDate = function(ms) {
+  var date = B.util.ensureDateObj(ms);
+  var year = date.getFullYear();
+  var month = B.string.padStart(date.getMonth() + 1, 2);
+  var day = B.string.padStart(date.getDate(), 2);
+  return day + '/' + month + '/' + year;
+};
+
+B.format.shortTime = function(ms) {
+  var d = B.util.ensureDateObj(ms);
+  var hours = d.getHours();
+  var minutes = d.getMinutes();
+  var ext = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12 || 12;
+  minutes = B.string.padStart(minutes, 2);
+  return hours + ':' + minutes + ext;
+};
+
+B.format.shortDateTime = function(ms) {
+  return B.format.shortTime(ms) + ' ' + B.format.shortDate(ms);
+};
+
+B.format.commonDateTime = function(ms) {
+  return B.format.shortTime(ms) + ' ' + B.format.commonDateString(ms);
+};
+
+B.format.date = function() { // TODO - copy result from Upvise
+};
+
+B.format.dateTime = function() { // TODO - copy result from Upvise
+};
+
+B.format.capitalise = function(item) {
+  var str = B.str(item);
+
+  if (str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  } else {
+    return '';
+  }
+};
+
+B.format.title = function(item) {
+  var list = B.str(item).split(' ');
+  return B.util.map(list, B.format.capitalise).join(' ');
+};
+
+B.format.distance = function(metres) {
+  metres = B.int(metres);
+  if (metres < 1000) {
+    return metres + 'm';
+  } else {
+    return B.number.commify1(metres / 1000) + 'km';
+  }
+};
+
+B.format.multiValue = function(item) {
+  return B.str(item).replace(/\|/g, ', ');
+};
+
+B.format.upviseLink = function(table, id) {
+    if (table == "" || id == "" || id == null)
+        return "";
+    if (table == "Forms.forms") {
+        id = id.split(":")[0];
+    }
+    var item = Query.selectId(table, id);
+    if (item == null)
+        return "";
+    var func = "";
+    if (table == "Assets.assets")
+        func = "Assets.viewAsset";
+    else if (table == "Assets.locations")
+        func = "Assets.viewSite";
+    else if (table == "Projects.projects")
+        func = "Projects.viewProject";
+    else if (table == "System.files")
+        func = "Files.viewFile";
+    else if (table == "Qhse.procedures")
+        func = "Qhse.viewArticle";
+    else if (table == "Sales.products")
+        func = "Sales.viewProduct";
+    else if (table == "Sales.opportunities")
+        func = "Sales.viewOpp";
+    else if (table == "Sales.quotes")
+        func = "Sales.viewQuote";
+    else if (table == "Jobs.jobs")
+        func = "Jobs.viewJob";
+    else if (table == "Forms.forms")
+        func = "Forms.viewForm";
+    else if (table == "Contacts.contacts")
+        func = "Contacts.viewContact";
+    else if (table == "Contacts.companies")
+        func = "Contacts.viewCompany";
+    else if (table == "Calendar.events")
+        func = "Calendar.viewEvent";
+    else if (table == "Tasks.tasks")
+        func = "Tasks.viewTask";
+    else if (table == "Tasks.lists")
+        func = "Tasks.viewTaskList";
+    else if (table == "Time.slots")
+        func = "Time.viewSlot";
+    else if (table == "Tools.tools")
+        func = "Tools.viewTool";
+    var name = item.name;
+    if (table == "Forms.forms") {
+        name = Query.names("Forms.templates", item.templateid) + " " + item.name;
+    }
+    func = _func(func, id);
+    var onclick = "event.cancelBubble=true;" + _func("Engine.eval", func);
+    return '<a class=link onclick="' + onclick + '">' + name + '</a>';
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // UTIL
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.util = {};
+
+B.util.ensureDateObj = function(date) {
+  if (!(date instanceof Date)) {
+    return new Date(B.int(date));
+  }
+  return date;
+};
 
 //
 // Creates a string of a function with paramaters
