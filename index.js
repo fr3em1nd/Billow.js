@@ -199,6 +199,13 @@ B.QueryItem.prototype.save = function() {
   console.log('Saving item to db', this._table, this._item);
 };
 
+B.QueryItem.prototype.get = function (key) { // TODO - error handling and stuff
+  return this._item[key];
+};
+
+B.QueryItem.prototype.set = function (key, value) { // TODO - error handling
+  this._item[key] = value;
+};
 //
 // This function is called when an item is received.
 //
