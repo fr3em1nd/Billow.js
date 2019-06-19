@@ -975,6 +975,14 @@ B.util._quotation = function(value, open, close) {
   }
 };
 
+B.util.isEmpty = function (obj) {
+  if (Array.isArray(obj)) {
+    return !!obj.length;
+  } else {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Magically export BILLOW.js to the right places
