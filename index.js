@@ -146,12 +146,16 @@ B.QueryFactory.prototype.selectId = function (id) {
   }
 };
 
-B.QueryFactory.prototype.selectIn = function () {
-  //
 B.QueryFactory.prototype.selectIn = function (field, list, sort) {
   var items = B.query.selectIn(this.table, field, list, sort);
   return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// RESULT SET
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.ResultSet = function ResultSet(table, items, Carrier, query, sort) {
   this.table = table;
@@ -185,19 +189,30 @@ B.ResultSet.prototype.toJSON = function () {
 B.defineQueryItemProperty = function (obj, key) {
   Object.defineProperty(obj, key, {
     get: function () {
+      console.warn('Using the query item to get values directly is depreciated. Please use .get() instead');
       return this._item[key];
     },
     set: function (newValue) {
+      console.warn('Using the query item to set values directly is depreciated. Please use .set() instead');
       this._item[key] = newValue;
       return newValue;
     }
   });
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// QUERY ITEM
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 B.QueryItem = function QueryItem(item) {
   this._table = '';
   this._item = item;
 
+  //
+  // TODO - we need to not do this anymore!
+  //
   var keys = Object.keys(item);
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
