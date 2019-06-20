@@ -148,6 +148,9 @@ B.QueryFactory.prototype.selectId = function (id) {
 
 B.QueryFactory.prototype.selectIn = function () {
   //
+B.QueryFactory.prototype.selectIn = function (field, list, sort) {
+  var items = B.query.selectIn(this.table, field, list, sort);
+  return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
 };
 
 B.ResultSet = function ResultSet(table, items, Carrier, query, sort) {
