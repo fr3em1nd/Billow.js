@@ -130,6 +130,14 @@ B.QueryFactory.prototype.select = function (query, sort) {
   return new B.ResultSet(this.table, items, this.carrier, query, sort);
 };
 
+B.QueryFactory.prototype.selectOne = function (query, sort) {
+  var item = B.query.select(this.table, query, sort)[0];
+
+  if (item) {
+    return new this.carrier(item);
+  }
+};
+
 B.QueryFactory.prototype.selectId = function (id) {
   var item = B.query.selectId(this.table, id);
 
