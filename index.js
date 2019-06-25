@@ -838,7 +838,7 @@ B.format.multiValue = function (item) {
   return B.str(item).replace(/\|/g, ', ');
 };
 
-B.format.upviseLink = function (table, id) {
+B.format.upviseLink = function (table, id, name) {
   if (table == "" || id == "" || id == null)
     return "";
   if (table == "Forms.forms") {
@@ -882,8 +882,8 @@ B.format.upviseLink = function (table, id) {
     func = "Time.viewSlot";
   else if (table == "Tools.tools")
     func = "Tools.viewTool";
-  var name = item.name;
-  if (table == "Forms.forms") {
+  name = name || item.name;
+  if (table == "Forms.forms" && !name) {
     name = Query.names("Forms.templates", item.templateid) + " " + item.name;
   }
   func = _func(func, id);
