@@ -4,7 +4,40 @@
 
 var B = {};
 
-B.VERSION = '1.0.0';
+B.VERSION = '1.1.0';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// LOGGER
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.logger = {};
+
+B.logger.error = function () {
+  if (typeof WEB === 'function' && WEB()) {
+    console.error.apply(undefined, arguments);
+  }
+};
+
+B.logger.warn = function () {
+  if (typeof WEB === 'function' && WEB()) {
+    console.warn.apply(undefined, arguments);
+  }
+};
+
+B.logger.log = function () {
+  if (typeof WEB === 'function' && WEB()) {
+    console.log.apply(undefined, arguments);
+  }
+};
+
+B.logger.info = function () {
+  if (typeof WEB === 'function' && WEB()) {
+    console.info.apply(undefined, arguments);
+  }
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -54,7 +87,7 @@ B.query._getTableKeys = function (tableName) {
   if (channel) {
     return Object.keys(channel.columns);
   } else {
-    console.error('Cannot find table schema for given table name:', tableName);
+    B.logger.error('Cannot find table schema for given table name:', tableName);
     return [];
   }
 };
@@ -68,7 +101,7 @@ B.query._checkKeys = function (table, keys) {
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     if (!tableKeys.includes(key)) {
-      console.error(table + ' does not include the key "' + key + '"');
+      B.logger.error(table + ' does not include the key "' + key + '"');
       return false;
     }
   }
@@ -84,7 +117,7 @@ B.query.insert = function (table, values) {
   var validTable = B.query._checkTable(table);
 
   if (!validTable) {
-    console.error('Table "' + table + '" does not exist');
+    B.logger.error('Table "' + table + '" does not exist');
     return;
   }
 
@@ -101,7 +134,7 @@ B.query.update = function (table, id, values) {
   var validTable = B.query._checkTable(table);
 
   if (!validTable) {
-    console.error('Table "' + table + '" does not exist');
+    B.logger.error('Table "' + table + '" does not exist');
     return;
   }
 
@@ -189,11 +222,11 @@ B.ResultSet.prototype.toJSON = function () {
 B.defineQueryItemProperty = function (obj, key) {
   Object.defineProperty(obj, key, {
     get: function () {
-      console.warn('Using the query item to get values directly is depreciated. Please use .get() instead');
+      B.logger.warn('Using the query item to get values directly is depreciated. Please use .get() instead');
       return this._item[key];
     },
     set: function (newValue) {
-      console.warn('Using the query item to set values directly is depreciated. Please use .set() instead');
+      B.logger.warn('Using the query item to set values directly is depreciated. Please use .set() instead');
       this._item[key] = newValue;
       return newValue;
     }
@@ -222,7 +255,7 @@ B.QueryItem = function QueryItem(item) {
 };
 
 B.QueryItem.prototype.save = function () {
-  console.log('Saving item to db', this._table, this._item);
+  B.logger.log('Saving item to db', this._table, this._item);
 };
 
 B.QueryItem.prototype.get = function (key) { // TODO - error handling and stuff
@@ -914,7 +947,7 @@ B.util.each = function (list, callback) {
 //
 B.util.map = function (list, mappingFunction) {
   if (typeof mappingFunction !== 'function') {
-    console.error('No mapping function provided to B.util.map()');
+    B.logger.error('No mapping function provided to B.util.map()');
     return list;
   }
 
@@ -1031,11 +1064,11 @@ try {
 
 try {
   Report.writeDashboard = function () {
-    console.log('BILLOW.js successfully loaded');
-    console.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
-    console.log(B.FormTemplates.select());
-    console.log(B.Contacts.select());
-    console.log(B.Companies.select());
+    B.logger.log('BILLOW.js successfully loaded');
+    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
+    B.logger.log(B.FormTemplates.select());
+    B.logger.log(B.Contacts.select());
+    B.logger.log(B.Companies.select());
   };
 } catch (err) {
   //
