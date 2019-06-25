@@ -1054,6 +1054,7 @@ try {
 }
 
 try {
+  B.logger.info('Billow.js version: v' + B.VERSION);
   window.B = B;
 } catch (err) {
   //
@@ -1066,6 +1067,8 @@ try {
   Report.writeDashboard = function () {
     B.logger.log('BILLOW.js successfully loaded');
     B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
+    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].name);
+    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].get('name'));
     B.logger.log(B.FormTemplates.select());
     B.logger.log(B.Contacts.select());
     B.logger.log(B.Companies.select());
