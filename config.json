@@ -1,0 +1,10 @@
+{
+  "databases": [
+    {
+      "email": "civil@verticalmatters.com.au",
+      "password": "vm@2016",
+      "url": "https://www.upvise.com/uws",
+      "version": "*"
+    }
+  ]
+}

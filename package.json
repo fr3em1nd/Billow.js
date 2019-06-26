@@ -5,7 +5,8 @@
   "description": "A collection of utility functions designed to make developing inside Upvise easier.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent --coverage"
+    "test": "jest --silent --coverage",
+    "deploy": "node script/deploy.js"
   },
   "author": "Billow Software",
   "contributors": [
@@ -15,10 +16,13 @@
     "expect-puppeteer": "4.1.1",
     "jest": "24.7.1",
     "jest-puppeteer": "4.2.0",
-    "puppeteer": "1.17.0"
+    "puppeteer": "1.17.0",
+    "upvise-client": "git+https://e3b0eac67ee57ab0d09feb988bff3ae907c57f1b:x-oauth-basic@github.com/Billow-Software/upvise-client.git#v1.1.1"
   },
   "jest": {
     "preset": "jest-puppeteer",
-    "setupFilesAfterEnv": ["expect-puppeteer"]
+    "setupFilesAfterEnv": [
+      "expect-puppeteer"
+    ]
   }
 }
