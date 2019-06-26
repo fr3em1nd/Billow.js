@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.1.0';
+B.VERSION = '1.1.1';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -48,6 +48,13 @@ B.logger.info = function () {
 B.query = {};
 
 B.query.select = function (table, query, sort) {
+  var validTable = B.query._checkTable(table);
+
+  if (!validTable) {
+    B.logger.error('Table "' + table + '" does not exist');
+    return;
+  }
+
   //
   // Convert an object query into a query string. Example:
   // { name: 'Nathan McCallum', company: 'Billow Software'}
@@ -55,7 +62,16 @@ B.query.select = function (table, query, sort) {
   // 'name="Nathan McCallum" AND company="Billow Software"'
   //
   if (typeof query === 'object') {
-    query = B.util.map(Object.keys(query), function (key, i) {
+    var keys = Object.keys(query);
+
+    //
+    // Use this to check that the keys are valid. Note: I have chosen to not return here. My reasoning
+    // is that even if a query is faulty, it should still be left to return whatever it will return.
+    // I see this as a safer/more predictable way of handling things than if we returned nothing.
+    //
+    B.query._checkKeys(keys);
+
+    query = B.util.map(keys, function (key) {
       var value = query[key];
       return key + '=' + esc(value);
     }).join(' AND ');
