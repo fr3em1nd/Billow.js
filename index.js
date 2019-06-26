@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.1.1';
+B.VERSION = '1.1.2';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -52,7 +52,7 @@ B.query.select = function (table, query, sort) {
 
   if (!validTable) {
     B.logger.error('Table "' + table + '" does not exist');
-    return;
+    return [];
   }
 
   //
