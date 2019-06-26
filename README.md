@@ -2,13 +2,32 @@
 
 A collection of utility functions designed to make developing inside Upvise easier.
 
+# Usage
+
+1. Deploy `Billow.js` to the Upvise database where you want to use it, by adding it to the `config.json` file and then running `npm run deploy`.
+2. Load Billow.js using the following snippet (anywhere in your code)
+3. win!
+
+```javascript
+(function loadBillowJs() {
+  var item = Query.selectId('System.globalsettings', 'billow-software.billow.js');
+  if (!item) {
+    console.error('Billow.js not deployed to this database');
+    return;
+  }
+  if ((window.B && window.B.VERSION !== item.name) || !window.B) {
+    eval(item.value);
+  }
+})();
+```
+
 # Goals
 
 1. Create a standard library of functions commonly needed when developing dashboards and form workflows in Upvise.
 2. Improve reliability of our implementations by writing unit tests for these utilities.
 3. Have more control over our addons by using our own functions rather than relying on Upvise.
 
-**Note:** Due to the business wanting to move away from developing inside Upvise, we don't want to spend too much time on this project. However, this library can be developed alongside maintenance of existing works. 
+**Note:** Due to the business wanting to move away from developing inside Upvise, we don't want to spend too much time on this project. However, this library can be developed alongside maintenance of existing works.
 
 # Technical Requirements
 
