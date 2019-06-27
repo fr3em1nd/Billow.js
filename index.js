@@ -367,6 +367,10 @@ B.QueryItem.prototype.toJSON = function () {
   return JSON.stringify(this.toObject());
 };
 
+B.QueryItem.prototype.getUpviseLink = function (altName) {
+  return B.format.upviseLink(this._table, this.get('id'), altName);
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // ORM INTERFACE
