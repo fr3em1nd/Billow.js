@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.0';
+B.VERSION = '1.2.1';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -608,7 +608,7 @@ B.Quote.prototype.constructor = B.QueryItem;
 
 B.Quote.prototype.getProducts = function () {
   return B.QuoteProducts.select({
-    quoteid: this.id,
+    quoteid: this.get('id'),
   });
 };
 
