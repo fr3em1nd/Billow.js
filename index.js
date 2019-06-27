@@ -884,10 +884,12 @@ B.format.commonDateTime = function (ms) {
   return B.format.shortTime(ms) + ' ' + B.format.commonDateString(ms);
 };
 
-B.format.date = function () { // TODO - copy result from Upvise
+B.format.date = function (ms) { // TODO - copy result from Upvise
+  return Format.date(ms)
 };
 
-B.format.dateTime = function () { // TODO - copy result from Upvise
+B.format.dateTime = function (ms) { // TODO - copy result from Upvise
+  return Format.datetime(ms);
 };
 
 B.format.capitalise = function (item) {
