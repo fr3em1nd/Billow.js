@@ -69,7 +69,7 @@ B.query.select = function (table, query, sort) {
     // is that even if a query is faulty, it should still be left to return whatever it will return.
     // I see this as a safer/more predictable way of handling things than if we returned nothing.
     //
-    B.query._checkKeys(keys);
+    B.query._checkKeys(table, keys);
 
     query = B.util.map(keys, function (key) {
       var value = query[key];
