@@ -278,6 +278,70 @@ B.QueryItem.prototype.get = function (key) { // TODO - error handling and stuff
   return this._item[key];
 };
 
+B.QueryItem.prototype.get_id2name = function (key, table) {
+  return Query.names(table, this.get(key)) || '';
+};
+
+B.QueryItem.prototype.get_int = function (key) {
+  return B.int(this.get(key));
+};
+
+B.QueryItem.prototype.get_float = function (key) {
+  return B.float(this.get(key));
+};
+
+B.QueryItem.prototype.get_num = function (key) {
+  return B.num(this.get(key));
+};
+
+B.QueryItem.prototype.get_str = function (key) {
+  return B.str(this.get(key));
+};
+
+B.QueryItem.prototype.get_currency = function (key) {
+  return B.format.currency(this.get(key));
+};
+
+B.QueryItem.prototype.get_commonDateTime = function (key) {
+  return B.format.commonDateTime(this.get(key));
+};
+
+B.QueryItem.prototype.get_commonDate = function (key) {
+  return B.format.commonDateString(this.get(key));
+};
+
+B.QueryItem.prototype.get_shortDate = function (key) {
+  return B.format.shortDate(this.get(key));
+};
+
+B.QueryItem.prototype.get_shortTime = function (key) {
+  return B.format.shortTime(this.get(key));
+};
+
+B.QueryItem.prototype.get_shortDateTime = function (key) {
+  return B.format.shortDateTime(this.get(key));
+};
+
+B.QueryItem.prototype.get_date = function (key) {
+  return B.format.date(this.get(key));
+};
+
+B.QueryItem.prototype.get_dateTime = function (key) {
+  return B.format.dateTime(this.get(key));
+};
+
+B.QueryItem.prototype.get_capitalise = function (key) {
+  return B.format.capitalise(this.get(key));
+};
+
+B.QueryItem.prototype.get_title = function (key) {
+  return B.format.title(this.get(key));
+};
+
+B.QueryItem.prototype.get_multiValue = function (key) {
+  return B.format.multiValue(this.get(key));
+};
+
 B.QueryItem.prototype.set = function (key, value) { // TODO - error handling
   this._item[key] = value;
 };
