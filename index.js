@@ -929,7 +929,7 @@ B.format.upviseLink = function (table, id, name) {
   var item = Query.selectId(table, id);
   if (item == null)
     return "";
-  var func = "";
+  var func = ""; // TODO - make this shit a switch statement in a separate function
   if (table == "Assets.assets")
     func = "Assets.viewAsset";
   else if (table == "Assets.locations")
