@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.2';
+B.VERSION = '1.2.3';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -458,7 +458,7 @@ B.Form.prototype.setValue = function (ref) {
 };
 
 B.Form.prototype.getSubforms = function (field) {
-  return B.Forms.select({ linkedid: this.id + ':' + field }, 'date DESC');
+  return B.Forms.select({ linkedid: this.get('id') + ':' + field }, 'date DESC');
 };
 
 B.FormTemplate = function FormTemplate(item) {
@@ -1165,7 +1165,6 @@ try {
   Report.writeDashboard = function () {
     B.logger.log('BILLOW.js successfully loaded');
     B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
-    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].name);
     B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].get('name'));
     B.logger.log(B.FormTemplates.select());
     B.logger.log(B.Contacts.select());
