@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.1';
+B.VERSION = '1.2.2';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -802,6 +802,18 @@ B.string.padEnd = function (item, num) {
     str = str + '0';
   }
   return str;
+};
+
+B.string.pluralise = function(singularForm, pluralForm, count, include) {
+  var form = '';
+
+  if (count === 1) {
+    form = singularForm;
+  } else {
+    form = pluralForm;
+  }
+
+  return !!include ? count + ' ' + form : form;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
