@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.3';
+B.VERSION = '1.2.4';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -85,7 +85,14 @@ B.query.selectOne = function (table, query, sort) {
 }
 
 B.query.selectId = function (table, id) {
-  return Query.selectId(table, id);
+  var validTable = B.query._checkTable(table);
+
+  if (!validTable) {
+    B.logger.error('Table "' + table + '" does not exist');
+    return [];
+  }
+
+  return Query.selectId(table, id || '');
 };
 
 B.query.selectIn = function (table, field, list, sort) {
