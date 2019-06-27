@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.4';
+B.VERSION = '1.2.5';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -446,7 +446,7 @@ B.Form.prototype = Object.create(B.QueryItem.prototype);
 B.Form.prototype.constructor = B.QueryItem;
 
 B.Form.prototype.getValues = function () {
-  return JSON.parse(this.value || '{}');
+  return JSON.parse(this.get('value') || '{}');
 };
 
 B.Form.prototype.setValues = function (newValues) {
@@ -627,14 +627,14 @@ B.CatalogProduct.prototype = Object.create(B.QueryItem.prototype);
 B.CatalogProduct.prototype.constructor = B.QueryItem;
 
 B.CatalogProduct.prototype.getCustom = function (ref) {
-  var custom = JSON.parse(this.custom || '{}');
+  var custom = JSON.parse(this.get('custom') || '{}');
   return custom[ref];
 };
 
 B.CatalogProduct.prototype.setCustom = function (ref, value) {
-  var custom = JSON.parse(this.custom || '{}');
+  var custom = JSON.parse(this.get('custom') || '{}');
   custom[ref] = value;
-  this.custom = JSON.stringify(custom);
+  this.set('custom', JSON.stringify(custom));
 };
 
 B.QuoteProduct = function QuoteProduct(item) {
@@ -645,14 +645,14 @@ B.QuoteProduct.prototype = Object.create(B.QueryItem.prototype);
 B.QuoteProduct.prototype.constructor = B.QueryItem;
 
 B.QuoteProduct.prototype.getCustom = function (ref) {
-  var custom = JSON.parse(this.custom || '{}');
+  var custom = JSON.parse(this.get('custom') || '{}');
   return custom[ref];
 };
 
 B.QuoteProduct.prototype.setCustom = function (ref, value) {
-  var custom = JSON.parse(this.custom || '{}');
+  var custom = JSON.parse(this.get('custom') || '{}');
   custom[ref] = value;
-  this.custom = JSON.stringify(custom);
+  this.set('custom', JSON.stringify(custom));
 };
 
 B.QuoteProduct.prototype.getCatalogProduct = function () {
