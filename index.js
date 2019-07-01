@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.6';
+B.VERSION = '1.2.7';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1178,11 +1178,12 @@ B.migrations.renameCustomField = function(formid, table, oldId, newId, dryrun) {
 
 
       if (value) {
+        custom[newId] = value;
+        delete custom[oldId];
+
         B.logger.log('Writing new custom fields for ' + esc(item.name), custom);
 
         if (!dryrun) {
-          custom[newId] = value;
-          delete custom[oldId];
           Query.updateId(table, item.id, 'custom', JSON.stringify(custom));
         }
       }
