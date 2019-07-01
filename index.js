@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.2.5';
+B.VERSION = '1.2.6';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1145,7 +1145,52 @@ B.util.isEmpty = function (obj) {
   } else {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
-}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// MIGRATIONS
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.migrations = {};
+
+B.migrations.renameCustomField = function(formid, table, oldId, newId, dryrun) {
+  dryrun = typeof dryrun === 'boolean' ? dryrun : true;
+
+  dryrun && B.logger.info('Running renameCustomField in dry run mode.');
+
+  var field = Query.select('Notes.fields', '*', 'formid=' + esc(formid) + ' AND name=' + esc(oldId))[0];
+
+  if (field && field.id) {
+    B.logger.log('Working on field', field);
+    B.logger.log(oldId + ' -> ' + newId);
+
+    if (!dryrun) {
+      Query.updateId('Notes.fields', field.id, 'name', newId);
+    }
+
+    var items = Query.select(table, '*', 'custom != ""');
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var custom = JSON.parse(item.custom || '{}');
+      var value = custom[oldId]; // Note to self: scalar primitives (number, string, etc) are passed by value so this is safe.
+
+
+      if (value) {
+        B.logger.log('Writing new custom fields for ' + esc(item.name), custom);
+
+        if (!dryrun) {
+          custom[newId] = value;
+          delete custom[oldId];
+          Query.updateId(table, item.id, 'custom', JSON.stringify(custom));
+        }
+      }
+    }
+  }
+
+  !dryrun && Engine.refresh();
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
