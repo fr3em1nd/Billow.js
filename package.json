@@ -7,7 +7,8 @@
   "scripts": {
     "build": "babel index.js -d build-dev && babel index.js -d build-prod --minified --no-comments",
     "test": "jest --silent --coverage",
-    "deploy": "node script/deploy.js"
+    "deploy-prod": "npm run build && node script/deploy-prod.js",
+    "deploy-dev": "npm run build && node script/deploy-dev.js"
   },
   "author": "Billow Software",
   "contributors": [

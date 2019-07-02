@@ -8,7 +8,7 @@ const path = require('path');
 
 const config = require('../config.json');
 const B = require('../index');
-const js = fs.readFileSync(path.join(__dirname, '..', 'index.js'));
+const js = fs.readFileSync(path.join(__dirname, '..', 'build-prod', 'index.js'));
 
 const deploy = async () => {
   for (const database of config.databases) {
