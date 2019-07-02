@@ -40,203 +40,167 @@ B.logger = {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.query = {};
+B.query = {
+  select(table, query, sort) {
+    const validTable = B.query._checkTable(table);
 
-B.query.select = function (table, query, sort) {
-  var validTable = B.query._checkTable(table);
-
-  if (!validTable) {
-    B.logger.error('Table "' + table + '" does not exist');
-    return [];
-  }
-
-  //
-  // Convert an object query into a query string. Example:
-  // { name: 'Nathan McCallum', company: 'Billow Software'}
-  // Becomes:
-  // 'name="Nathan McCallum" AND company="Billow Software"'
-  //
-  if (typeof query === 'object') {
-    var keys = Object.keys(query);
-
-    //
-    // Use this to check that the keys are valid. Note: I have chosen to not return here. My reasoning
-    // is that even if a query is faulty, it should still be left to return whatever it will return.
-    // I see this as a safer/more predictable way of handling things than if we returned nothing.
-    //
-    B.query._checkKeys(table, keys);
-
-    query = B.util.map(keys, function (key) {
-      var value = query[key];
-      return key + '=' + esc(value);
-    }).join(' AND ');
-  }
-
-  return Query.select(table, '*', query, sort);
-};
-
-B.query.selectOne = function (table, query, sort) {
-  return B.query.select(table, query, sort)[0];
-}
-
-B.query.selectId = function (table, id) {
-  var validTable = B.query._checkTable(table);
-
-  if (!validTable) {
-    B.logger.error('Table "' + table + '" does not exist');
-    return [];
-  }
-
-  return Query.selectId(table, id || '');
-};
-
-B.query.selectIn = function (table, field, list, sort) {
-  var query = B.util.createIn(field, list);
-  return B.query.select(table, query, sort);
-};
-
-//
-// Get a list of the keys found in a table
-//
-B.query._getTableKeys = function (tableName) {
-  var tableId = Cache._makeLegacyTable(tableName);
-  var channel = Cache.channels[tableId];
-
-  if (channel) {
-    return Object.keys(channel.columns);
-  } else {
-    B.logger.error('Cannot find table schema for given table name:', tableName);
-    return [];
-  }
-};
-
-//
-// Return an error if any of the given keys are not defined in the db schema
-//
-B.query._checkKeys = function (table, keys) {
-  var tableKeys = B.query._getTableKeys(table);
-
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    if (!tableKeys.includes(key)) {
-      B.logger.error(table + ' does not include the key "' + key + '"');
-      return false;
+    if (!validTable) {
+      B.logger.error('Table "' + table + '" does not exist');
+      return [];
     }
-  }
 
-  return true;
+    //
+    // Convert an object query into a query string. Example:
+    // { name: 'Nathan McCallum', company: 'Billow Software'}
+    // Becomes:
+    // 'name="Nathan McCallum" AND company="Billow Software"'
+    //
+    if (typeof query === 'object') {
+      const keys = Object.keys(query);
+
+      //
+      // Use this to check that the keys are valid. Note: I have chosen to not return here. My reasoning
+      // is that even if a query is faulty, it should still be left to return whatever it will return.
+      // I see this as a safer/more predictable way of handling things than if we returned nothing.
+      //
+      B.query._checkKeys(table, keys);
+
+      query = B.util.map(keys, (key) => {
+        const value = query[key];
+        return `${key}=${esc(value)}`;
+      }).join(' AND ');
+    }
+
+    return Query.select(table, '*', query, sort);
+  },
+
+  selectOne(table, query, sort) {
+    return B.query.select(table, query, sort)[0];
+  },
+
+  selectId(table, id) {
+    const validTable = B.query._checkTable(table);
+
+    if (!validTable) {
+      B.logger.error('Table "' + table + '" does not exist');
+      return [];
+    }
+
+    return Query.selectId(table, id || '');
+  },
+
+  selectIn(table, field, list, sort) {
+    const query = B.util.createIn(field, list);
+    return B.query.select(table, query, sort);
+  },
+
+  //
+  // Get a list of the keys found in a table
+  //
+  _getTableKeys(tableName) {
+    const tableId = Cache._makeLegacyTable(tableName);
+    const channel = Cache.channels[tableId];
+
+    if (channel) {
+      return Object.keys(channel.columns);
+    } else {
+      B.logger.error('Cannot find table schema for given table name:', tableName);
+      return [];
+    }
+  },
+
+  //
+  // Return an error if any of the given keys are not defined in the db schema
+  //
+  _checkKeys(table, keys) {
+    const tableKeys = B.query._getTableKeys(table);
+
+    for (const key of keys) {
+      if (!tableKeys.includes(key)) {
+        B.logger.error(table + ' does not include the key "' + key + '"');
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  _checkTable(table) {
+    return !!Cache.channels[Cache._makeLegacyTable(table)];
+  },
+
+  insert(table, values) {
+    const validTable = B.query._checkTable(table);
+
+    if (!validTable) {
+      B.logger.error('Table "' + table + '" does not exist');
+      return;
+    }
+
+    const validKeys = B.query._checkKeys(table, Object.keys(values));
+
+    if (!validKeys) {
+      return;
+    }
+
+    return Query.insert(table, values);
+  },
+
+  update(table, id, values) {
+    const validTable = B.query._checkTable(table);
+
+    if (!validTable) {
+      B.logger.error('Table "' + table + '" does not exist');
+      return;
+    }
+
+    const validKeys = B.query._checkKeys(table, Object.keys(values));
+
+    if (!validKeys) {
+      return;
+    }
+
+    return Query.update(table, values, 'id=' + esc(id));
+  },
 };
-
-B.query._checkTable = function (table) {
-  return !!Cache.channels[Cache._makeLegacyTable(table)];
-}
-
-B.query.insert = function (table, values) {
-  var validTable = B.query._checkTable(table);
-
-  if (!validTable) {
-    B.logger.error('Table "' + table + '" does not exist');
-    return;
-  }
-
-  var validKeys = B.query._checkKeys(table, Object.keys(values));
-
-  if (!validKeys) {
-    return;
-  }
-
-  return Query.insert(table, values);
-};
-
-B.query.update = function (table, id, values) {
-  var validTable = B.query._checkTable(table);
-
-  if (!validTable) {
-    B.logger.error('Table "' + table + '" does not exist');
-    return;
-  }
-
-  var validKeys = B.query._checkKeys(table, Object.keys(values));
-
-  if (!validKeys) {
-    return;
-  }
-
-  return Query.update(table, values, 'id=' + esc(id));
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// QUERY FACTORY
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-B.QueryFactory = function QueryFactory(table, carrier) {
-  this.table = table;
-  this.carrier = carrier;
-};
-
-B.QueryFactory.prototype.select = function (query, sort) {
-  var items = B.query.select(this.table, query, sort);
-  return new B.ResultSet(this.table, items, this.carrier, query, sort);
-};
-
-B.QueryFactory.prototype.selectOne = function (query, sort) {
-  var item = B.query.select(this.table, query, sort)[0];
-
-  if (item) {
-    return new this.carrier(item);
-  }
-};
-
-B.QueryFactory.prototype.selectId = function (id) {
-  var item = B.query.selectId(this.table, id);
-
-  if (item) {
-    return new this.carrier(item);
-  }
-};
-
-B.QueryFactory.prototype.selectIn = function (field, list, sort) {
-  var items = B.query.selectIn(this.table, field, list, sort);
-  return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // RESULT SET
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.ResultSet = function ResultSet(table, items, Carrier, query, sort) {
-  this.table = table;
-  this.query = query || '';
-  this.sort = sort || '';
-  this.items = [];
+B.ResultSet = class ResultSet {
+  constructor(table, items, Carrier, query = '', sort = '') {
+    this.table = table;
+    this.query = query;
+    this.sort = sort;
+    this.items = [];
 
-  for (var i = 0; i < items.length; i++) {
-    this.items.push(new Carrier(items[i]));
+    for (const item of items) {
+      this.items.push(new Carrier(item));
+    }
+  }
+
+  each(callback) {
+    B.util.each(this.items, callback);
+  }
+
+  map(callback) {
+    return B.util.map(this.items, callback);
+  }
+
+  toObject() {
+    return this.map((queryItem) => queryItem.toObject());
+  }
+
+  toJSON() {
+    return JSON.stringify(this.toObject());
   }
 };
 
-B.ResultSet.prototype.each = function (callback) {
-  B.util.each(this.items, callback);
-};
-
-B.ResultSet.prototype.map = function (callback) {
-  return B.util.map(this.items, callback);
-};
-
-B.ResultSet.prototype.toObject = function () {
-  return this.map(function (queryItem) {
-    return queryItem.toObject();
-  });
-};
-
-B.ResultSet.prototype.toJSON = function () {
-  return JSON.stringify(this.toObject());
-};
-
+//
+// TODO - remove this in a future release of Billow.js
+//
 B.defineQueryItemProperty = function (obj, key) {
   Object.defineProperty(obj, key, {
     get: function () {
@@ -249,7 +213,7 @@ B.defineQueryItemProperty = function (obj, key) {
       return newValue;
     }
   });
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -257,120 +221,134 @@ B.defineQueryItemProperty = function (obj, key) {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.QueryItem = function QueryItem(item) {
-  this._table = '';
-  this._item = item;
+B.QueryItem = class QueryItem {
+  constructor(item) {
+    this._table = ''; // Subclasses should override this!
+    this._item = item;
 
-  //
-  // TODO - we need to not do this anymore!
-  //
-  var keys = Object.keys(item);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    this[key] = item[key];
-    B.defineQueryItemProperty(this, key);
+    //
+    // TODO - we need to not do this anymore!
+    //
+    const keys = Object.keys(item);
+    for (const key of keys) {
+      this[key] = item[key];
+      B.defineQueryItemProperty(this, key);
+    }
   }
-};
 
-B.QueryItem.prototype.save = function () {
-  B.logger.log('Saving item to db', this._table, this._item);
-};
+  save() {
+    B.logger.log('Saving item to db', this._table, this._item);
+  }
 
-B.QueryItem.prototype.get = function (key) { // TODO - error handling and stuff
-  return this._item[key];
-};
+  get(key) { // TODO - error handling and custom fields and stuff
+    return this._item[key];
+  }
 
-B.QueryItem.prototype.get_id2name = function (key, table) {
-  return Query.names(table, this.get(key)) || '';
-};
+  get_id2name(key, table) {
+    //
+    // TODO - Query.name is broken in cases where the table's name value is not called "name".
+    // (For example Sales.quoteproduts, where the name field is "productname"
+    //
+    return Query.names(table, this.get(key)) || '';
+  }
 
-B.QueryItem.prototype.get_int = function (key) {
-  return B.int(this.get(key));
-};
+  get_int(key) {
+    return B.int(this.get(key));
+  }
 
-B.QueryItem.prototype.get_float = function (key) {
-  return B.float(this.get(key));
-};
+  get_float(key) {
+    return B.float(this.get(key));
+  }
 
-B.QueryItem.prototype.get_num = function (key) {
-  return B.num(this.get(key));
-};
+  get_num(key) {
+    return B.num(this.get(key));
+  }
 
-B.QueryItem.prototype.get_str = function (key) {
-  return B.str(this.get(key));
-};
+  get_str(key) {
+    return B.str(this.get(key));
+  }
 
-B.QueryItem.prototype.get_currency = function (key) {
-  return B.format.currency(this.get(key));
-};
+  get_currency(key) {
+    return B.format.currency(this.get(key));
+  }
 
-B.QueryItem.prototype.get_commonDateTime = function (key) {
-  return B.format.commonDateTime(this.get(key));
-};
+  get_commonDateTime(key) {
+    return B.format.commonDateTime(this.get(key));
+  }
 
-B.QueryItem.prototype.get_commonDate = function (key) {
-  return B.format.commonDateString(this.get(key));
-};
+  get_commonDate(key) {
+    return B.format.commonDateString(this.get(key));
+  }
 
-B.QueryItem.prototype.get_shortDate = function (key) {
-  return B.format.shortDate(this.get(key));
-};
+  get_shortDate(key) {
+    return B.format.shortDate(this.get(key));
+  }
 
-B.QueryItem.prototype.get_shortTime = function (key) {
-  return B.format.shortTime(this.get(key));
-};
+  get_shortTime(key) {
+    return B.format.shortTime(this.get(key));
+  }
 
-B.QueryItem.prototype.get_shortDateTime = function (key) {
-  return B.format.shortDateTime(this.get(key));
-};
+  get_shortDateTime(key) {
+    return B.format.shortDateTime(this.get(key));
+  }
 
-B.QueryItem.prototype.get_date = function (key) {
-  return B.format.date(this.get(key));
-};
+  get_date(key) {
+    return B.format.date(this.get(key));
+  }
 
-B.QueryItem.prototype.get_dateTime = function (key) {
-  return B.format.dateTime(this.get(key));
-};
+  get_dateTime(key) {
+    return B.format.dateTime(this.get(key));
+  }
 
-B.QueryItem.prototype.get_capitalise = function (key) {
-  return B.format.capitalise(this.get(key));
-};
+  get_capitalise(key) {
+    return B.format.capitalise(this.get(key));
+  }
 
-B.QueryItem.prototype.get_title = function (key) {
-  return B.format.title(this.get(key));
-};
+  get_title(key) {
+    return B.format.title(this.get(key));
+  }
 
-B.QueryItem.prototype.get_multiValue = function (key) {
-  return B.format.multiValue(this.get(key));
-};
+  get_multiValue(key) {
+    return B.format.multiValue(this.get(key));
+  }
 
-B.QueryItem.prototype.set = function (key, value) { // TODO - error handling
-  this._item[key] = value;
-};
-//
-// This function is called when an item is received.
-//
-B.QueryItem.prototype.onReceiveItem = function (item) {
-  return item;
-};
+  getUpviseLink(altName) {
+    return B.format.upviseLink(this._table, this.get('id'), altName);
+  }
 
-//
-// This function is called when an item is saved.
-//
-B.QueryItem.prototype.onSaveItem = function (item) {
-  return item;
-};
+  set(key, value) { // TODO - error handling and custom fields
+    this._item[key] = value;
+  }
 
-B.QueryItem.prototype.toObject = function () {
-  return this._item;
-};
+  getCustom(ref) {
+    const custom = JSON.parse(this.get('custom') || '{}');
+    return custom[ref];
+  }
 
-B.QueryItem.prototype.toJSON = function () {
-  return JSON.stringify(this.toObject());
-};
+  setCustom = function (ref, value) {
+    let custom = JSON.parse(this.get('custom') || '{}');
+    custom[ref] = value;
+    this.set('custom', JSON.stringify(custom));
+  }
 
-B.QueryItem.prototype.getUpviseLink = function (altName) {
-  return B.format.upviseLink(this._table, this.get('id'), altName);
+  toObject() {
+    return this._item;
+  }
+
+  toJSON() {
+    return JSON.stringify(this.toObject());
+  }
+
+  //
+  // OVERIDES
+  //
+  onReceiveItem(item) {
+    return item;
+  }
+
+  onSaveItem(item) {
+    return item;
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,280 +361,299 @@ B.QueryItem.prototype.getUpviseLink = function (altName) {
 // CONTACTS
 //
 
-B.Contact = function Contact(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Contacts.contacts';
+B.Contact = class Contact extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Contacts.contacts';
+  }
 };
-B.Contact.prototype = Object.create(B.QueryItem.prototype);
-B.Contact.prototype.constructor = B.QueryItem;
 
-B.Company = function Company(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Contacts.companies';
+B.Company = class Company extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Contacts.companies';
+  }
 };
-B.Company.prototype = Object.create(B.QueryItem.prototype);
-B.Company.prototype.constructor = B.QueryItem;
 
-B.ContactGroup = function ContactGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Contacts.groups';
+B.ContactGroup = class ContactGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Contacts.groups';
+  }
 };
-B.ContactGroup.prototype = Object.create(B.QueryItem.prototype);
-B.ContactGroup.prototype.constructor = B.QueryItem;
 
-B.ContactRegion = function ContactRegion(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Contacts.regions';
+B.ContactRegion = class ContactRegion extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Contacts.regions';
+  }
 };
-B.ContactRegion.prototype = Object.create(B.QueryItem.prototype);
-B.ContactRegion.prototype.constructor = B.QueryItem;
 
-B.ContactMailTemplate = function ContactMailTemplate(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Contacts.mailtemplates';
+B.ContactMailTemplate = class ContactMailTemplate extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Contacts.mailtemplates';
+  }
 };
-B.ContactMailTemplate.prototype = Object.create(B.QueryItem.prototype);
-B.ContactMailTemplate.prototype.constructor = B.QueryItem;
 
 //
 // CUSTOM FIELDS
 //
 
-B.CustomField = function CustomField(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Notes.fields';
+B.CustomField = class CustomField extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Notes.fields';
+  }
 };
-B.CustomField.prototype = Object.create(B.QueryItem.prototype);
-B.CustomField.prototype.constructor = B.QueryItem;
 
 //
 // FORMS
 //
 
-B.Form = function Form(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Forms.forms';
-};
-B.Form.prototype = Object.create(B.QueryItem.prototype);
-B.Form.prototype.constructor = B.QueryItem;
+B.Form = class Form extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Forms.forms';
+  }
 
-B.Form.prototype.getValues = function () {
-  return JSON.parse(this.get('value') || '{}');
+  getValues() {
+    return JSON.parse(this.get('value') || '{}');
+  }
+
+  setValues(newValues) {
+    this.set('value', JSON.stringify(newValues));
+  }
+
+  getValue(ref) {
+    var vals = this.getValues();
+    return vals[ref];
+  }
+
+  setValue(ref) {
+    var vals = this.getValues();
+    vals[ref] = ref;
+    this.setValues(vals);
+  }
+
+  getSubforms(field) {
+    return B.Forms.select(
+      {
+        linkedid: this.get('id') + ':' + field
+      },
+      'date DESC'
+    );
+  }
 };
 
-B.Form.prototype.setValues = function (newValues) {
-  this.value = JSON.stringify(newValues);
+
+B.FormTemplate = class FormTemplate extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Forms.templates';
+  }
 };
 
-B.Form.prototype.getValue = function (ref) {
-  var vals = this.getValues();
-  return vals[ref];
+B.FormField = class FormField extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Forms.fields';
+  }
 };
 
-B.Form.prototype.setValue = function (ref) {
-  var vals = this.getValues();
-  vals[ref] = ref;
-  this.setValues(vals);
+B.FormGroup = class FormGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Forms.groups';
+  }
 };
 
-B.Form.prototype.getSubforms = function (field) {
-  return B.Forms.select({ linkedid: this.get('id') + ':' + field }, 'date DESC');
+B.FormState = class FormState extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Forms.states';
+  }
 };
-
-B.FormTemplate = function FormTemplate(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Forms.templates';
-};
-B.FormTemplate.prototype = Object.create(B.QueryItem.prototype);
-B.FormTemplate.prototype.constructor = B.QueryItem;
-
-B.FormField = function FormField(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Forms.fields';
-};
-B.FormField.prototype = Object.create(B.QueryItem.prototype);
-B.FormField.prototype.constructor = B.QueryItem;
-
-B.FormGroup = function FormGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Forms.groups';
-};
-B.FormGroup.prototype = Object.create(B.QueryItem.prototype);
-B.FormGroup.prototype.constructor = B.QueryItem;
-
-B.FormState = function FormState(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Forms.states';
-};
-B.FormState.prototype = Object.create(B.QueryItem.prototype);
-B.FormState.prototype.constructor = B.QueryItem;
 
 //
 // JOBS
 //
 
-B.Job = function Job(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Jobs.jobs';
+B.Job = class Job extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Jobs.jobs';
+  }
 };
-B.Job.prototype = Object.create(B.QueryItem.prototype);
-B.Job.prototype.constructor = B.QueryItem;
 
-B.JobGroup = function JobGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Jobs.groups';
+B.JobGroup = class JobGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Jobs.groups';
+  }
 };
-B.JobGroup.prototype = Object.create(B.QueryItem.prototype);
-B.JobGroup.prototype.constructor = B.QueryItem;
 
-B.JobProduct = function JobGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Jobs.jobproducts';
+B.JobProduct = class JobGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Jobs.jobproducts';
+  }
 };
-B.JobProduct.prototype = Object.create(B.QueryItem.prototype);
-B.JobProduct.prototype.constructor = B.QueryItem;
 
 //
 // PROJECTS
 //
 
-B.Project = function Project(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.projects';
+B.Project = class Project extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.projects';
+  }
 };
-B.Project.prototype = Object.create(B.QueryItem.prototype);
-B.Project.prototype.constructor = B.QueryItem;
 
-B.ProjectAssetGroup = function ProjectAssetGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.assetgroups';
+B.ProjectAssetGroup = class ProjectAssetGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.assetgroups';
+  }
 };
-B.ProjectAssetGroup.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectAssetGroup.prototype.constructor = B.QueryItem;
 
-B.ProjectGroup = function ProjectGroup(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.groups';
+B.ProjectGroup = class ProjectGroup extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.groups';
+  }
 };
-B.ProjectGroup.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectGroup.prototype.constructor = B.QueryItem;
 
-B.ProjectMilestone = function ProjectMilestone(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.milestones';
+B.ProjectMilestone = class ProjectMilestone extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.milestones';
+  }
 };
-B.ProjectMilestone.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectMilestone.prototype.constructor = B.QueryItem;
 
-B.ProjectMilestoneTemplate = function ProjectMilestoneTemplate(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.milestonetemplates';
+B.ProjectMilestoneTemplate = class ProjectMilestoneTemplate extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.milestonetemplates';
+  }
 };
-B.ProjectMilestoneTemplate.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectMilestoneTemplate.prototype.constructor = B.QueryItem;
 
-B.ProjectActivity = function ProjectActivity(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.projectactivities';
+B.ProjectActivity = class ProjectActivity extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.projectactivities';
+  }
 };
-B.ProjectActivity.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectActivity.prototype.constructor = B.QueryItem;
 
-B.ProjectProduct = function ProjectProduct(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.projectproducts';
+B.ProjectProduct = class ProjectProduct extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.projectproducts';
+  }
 };
-B.ProjectProduct.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectProduct.prototype.constructor = B.QueryItem;
 
-B.ProjectTemplate = function ProjectTemplate(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.projectemplates';
+B.ProjectTemplate = class ProjectTemplate extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.projectemplates';
+  }
 };
-B.ProjectTemplate.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectTemplate.prototype.constructor = B.QueryItem;
 
-B.ProjectStage = function ProjectStage(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.stages';
+B.ProjectStage = class ProjectStage extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.stages';
+  }
 };
-B.ProjectStage.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectStage.prototype.constructor = B.QueryItem;
 
-B.ProjectTaskTemplate = function ProjectTaskTemplate(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.tasktemplates';
+B.ProjectTaskTemplate = class ProjectTaskTemplate extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.tasktemplates';
+  }
 };
-B.ProjectTaskTemplate.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectTaskTemplate.prototype.constructor = B.QueryItem;
 
-B.ProjectAsset = function ProjectAsset(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Projects.assets';
+B.ProjectAsset = class ProjectAsset extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Projects.assets';
+  }
 };
-B.ProjectAsset.prototype = Object.create(B.QueryItem.prototype);
-B.ProjectAsset.prototype.constructor = B.QueryItem;
 
 //
 // SALES
 //
 
-B.Quote = function Quote(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Sales.quotes';
-};
-B.Quote.prototype = Object.create(B.QueryItem.prototype);
-B.Quote.prototype.constructor = B.QueryItem;
+B.Quote = class Quote extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Sales.quotes';
+  }
 
-B.Quote.prototype.getProducts = function () {
-  return B.QuoteProducts.select({
-    quoteid: this.get('id'),
-  });
-};
-
-B.CatalogProduct = function CatalogProduct(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Sales.products';
-};
-B.CatalogProduct.prototype = Object.create(B.QueryItem.prototype);
-B.CatalogProduct.prototype.constructor = B.QueryItem;
-
-B.CatalogProduct.prototype.getCustom = function (ref) {
-  var custom = JSON.parse(this.get('custom') || '{}');
-  return custom[ref];
+  getProducts() {
+    return B.QuoteProducts.select({
+      quoteid: this.get('id'),
+    });
+  }
 };
 
-B.CatalogProduct.prototype.setCustom = function (ref, value) {
-  var custom = JSON.parse(this.get('custom') || '{}');
-  custom[ref] = value;
-  this.set('custom', JSON.stringify(custom));
+B.CatalogProduct = class CatalogProduct extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Sales.products';
+  }
 };
 
-B.QuoteProduct = function QuoteProduct(item) {
-  B.QueryItem.call(this, item);
-  this._table = 'Sales.quoteproducts';
-};
-B.QuoteProduct.prototype = Object.create(B.QueryItem.prototype);
-B.QuoteProduct.prototype.constructor = B.QueryItem;
+B.QuoteProduct = class QuoteProduct extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Sales.quoteproducts';
+  }
 
-B.QuoteProduct.prototype.getCustom = function (ref) {
-  var custom = JSON.parse(this.get('custom') || '{}');
-  return custom[ref];
-};
-
-B.QuoteProduct.prototype.setCustom = function (ref, value) {
-  var custom = JSON.parse(this.get('custom') || '{}');
-  custom[ref] = value;
-  this.set('custom', JSON.stringify(custom));
+  getCatalogProduct() {
+    return B.CatalogProducts.selectId(this.get('productid'));
+  };
 };
 
-B.QuoteProduct.prototype.getCatalogProduct = function () {
-  return B.CatalogProducts.selectId(this.productid);
-};
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // QUERY FACTORY
 //
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+B.QueryFactory = class QueryFactory {
+  constructor(table, carrier) {
+    this.table = table;
+    this.carrier = carrier;
+  }
+
+  select(query, sort) {
+    const items = B.query.select(this.table, query, sort);
+    return new B.ResultSet(this.table, items, this.carrier, query, sort);
+  }
+
+  selectOne(query, sort) {
+    const item = B.query.select(this.table, query, sort)[0];
+
+    if (item) {
+      return new this.carrier(item);
+    }
+  }
+
+  selectId(id) {
+    const item = B.query.selectId(this.table, id);
+
+    if (item) {
+      return new this.carrier(item);
+    }
+  }
+
+  selectIn(field, list, sort) {
+    const items = B.query.selectIn(this.table, field, list, sort);
+    return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
+  }
+};
 
 B.CatalogProducts = new B.QueryFactory('Sales.products', B.CatalogProduct);
 B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
@@ -693,48 +690,52 @@ B.Quotes = new B.QueryFactory('Sales.quotes', B.Quote);
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.date = {};
+B.date = {
+  SECOND: 1000,
+  MINUTE: 1000 * 60,
+  HOUR: 1000 * 60 * 60,
+  DAY: 1000 * 60 * 60 * 24,
+  WEEK: 1000 * 60 * 60 * 24 * 7,
 
-B.date.SECOND = 1000;
-B.date.MINUTE = 1000 * 60;
-B.date.HOUR = 1000 * 60 * 60;
-B.date.DAY = 1000 * 60 * 60 * 24;
-B.date.WEEK = 1000 * 60 * 60 * 24 * 7;
+  getTimeInDay(time) {
+    const d = new Date(time);
+    return d.getTime() % B.date.DAY;
+  },
 
-B.date.getTimeInDay = function (time) {
-  var d = new Date(time);
-  return d.getTime() % B.date.DAY;
+  now() {
+    return (new Date()).getTime();
+  },
+
+  today() {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    return d.getTime();
+  },
+
+  //
+  // Converts a date to a string more appropriate for display to the user (14 Jul 2017)
+  //
+  commonDateString(date) {
+    let dateString = '';
+    let tempDate = date;
+
+    if (!(date instanceof Date)) {
+      tempDate = new Date(parseInt(date));
+    }
+
+    dateString = tempDate.toString().split(' ');
+    dateString = `${dateString[2]} ${dateString[1]} ${dateString[3]}`;
+
+    return dateString;
+  },
+
+  dayOfWeek() {
+    //
+  },
 };
 
-B.date.now = function () {
-  return (new Date()).getTime();
-};
 
-B.date.today = function () {
-  var now = new Date();
-  var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-  return d.getTime();
-};
 
-//
-// Converts a date to a string more appropriate for display to the user (14 Jul 2017)
-//
-B.date.commonDateString = function (date) {
-  var dateString = "";
-  var tempDate = date;
-
-  if (!(date instanceof Date)) {
-    tempDate = new Date(parseInt(date));
-  }
-
-  dateString = tempDate.toString().split(" ");
-  dateString = dateString[2] + " " + dateString[1] + " " + dateString[3];
-
-  return dateString;
-};
-
-B.date.dayOfWeek = function () {
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -742,16 +743,12 @@ B.date.dayOfWeek = function () {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.int = function (item) {
-  return parseInt(B.num(item));
-};
+B.int = item => parseInt(B.num(item));
 
-B.float = function (item) {
-  return parseFloat(B.num(item));
-};
+B.float = item => parseFloat(B.num(item));
 
-B.num = function (item) {
-  var num = Number(item);
+B.num = item => {
+  const num = Number(item);
 
   if (isNaN(num)) {
     return 0;
@@ -760,12 +757,12 @@ B.num = function (item) {
   }
 };
 
-B.str = function (item) {
+B.str = item => {
   if (item == undefined || typeof item === 'function' || typeof item === 'object') {
     return '';
   }
 
-  var str = String(item);
+  const str = String(item);
 
   if (str === 'NaN') {
     return '';
@@ -774,7 +771,7 @@ B.str = function (item) {
   }
 };
 
-B.arr = function (item) {
+B.arr = item => {
   if (Array.isArray(item)) {
     return item;
   } else {
@@ -788,34 +785,34 @@ B.arr = function (item) {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.string = {};
+B.string = {
+  padStart(item, num) {
+    let str = B.str(item);
+    while (str.length < num) {
+      str = '0' + str;
+    }
+    return str;
+  },
 
-B.string.padStart = function (item, num) {
-  var str = B.str(item);
-  while (str.length < num) {
-    str = '0' + str;
-  }
-  return str;
-};
+  padEnd(item, num) {
+    let str = B.str(item);
+    while (str.length < num) {
+      str = str + '0';
+    }
+    return str;
+  },
 
-B.string.padEnd = function (item, num) {
-  var str = B.str(item);
-  while (str.length < num) {
-    str = str + '0';
-  }
-  return str;
-};
+  pluralise(singularForm, pluralForm, count, include) {
+    let form = '';
 
-B.string.pluralise = function(singularForm, pluralForm, count, include) {
-  var form = '';
+    if (count === 1) {
+      form = singularForm;
+    } else {
+      form = pluralForm;
+    }
 
-  if (count === 1) {
-    form = singularForm;
-  } else {
-    form = pluralForm;
-  }
-
-  return !!include ? count + ' ' + form : form;
+    return !!include ? `${count} ${form}` : form;
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -826,42 +823,24 @@ B.string.pluralise = function(singularForm, pluralForm, count, include) {
 
 B.number = {};
 
-B.number.round0 = function (num) {
-  return B.num(num).toFixed(0);
-};
+B.number.round0 = num => B.num(num).toFixed(0);
+B.number.round1 = num => B.num(num).toFixed(1);
+B.number.round2 = num => B.num(num).toFixed(2);
 
-B.number.round1 = function (num) {
-  return B.num(num).toFixed(1);
-};
-
-B.number.round2 = function (num) {
-  return B.num(num).toFixed(2);
-};
-
-B.number.commify = function (num) {
-  var parts = B.str(num).split('.');
+B.number.commify = num => {
+  const parts = B.str(num).split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
 };
 
-B.number.commify0 = function (num) {
-  return B.number.commify(B.number.round0(num));
-};
-
-B.number.commify1 = function (num) {
-  return B.number.commify(B.number.round1(num));
-};
-
-B.number.commify2 = function (num) {
-  return B.number.commify(B.number.round2(num));
-};
+B.number.commify0 = num => B.number.commify(B.number.round0(num));
+B.number.commify1 = num => B.number.commify(B.number.round1(num));
+B.number.commify2 = num => B.number.commify(B.number.round2(num));
 
 //
 // Convert a float to a string (with a dollar sign, comma separated)
 //
-B.number.currency = function (number) {
-  return '$' + B.number.commify2(number);
-};
+B.number.currency = number => `$${B.number.commify2(number)}`;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -876,42 +855,37 @@ B.format.currency = B.number.currency;
 B.format.padStart = B.string.padStart;
 B.format.padEnd = B.string.padEnd;
 
-B.format.shortDate = function (ms) {
-  var date = B.util.ensureDateObj(ms);
-  var year = date.getFullYear();
-  var month = B.string.padStart(date.getMonth() + 1, 2);
-  var day = B.string.padStart(date.getDate(), 2);
-  return day + '/' + month + '/' + year;
+B.format.shortDate = ms => {
+  const date = B.util.ensureDateObj(ms);
+  const year = date.getFullYear();
+  const month = B.string.padStart(date.getMonth() + 1, 2);
+  const day = B.string.padStart(date.getDate(), 2);
+  return `${day}/${month}/${year}`;
 };
 
-B.format.shortTime = function (ms) {
-  var d = B.util.ensureDateObj(ms);
-  var hours = d.getHours();
-  var minutes = d.getMinutes();
-  var ext = hours >= 12 ? 'pm' : 'am';
+B.format.shortTime = ms => {
+  const d = B.util.ensureDateObj(ms);
+  let hours = d.getHours();
+  let minutes = d.getMinutes();
+  const ext = hours >= 12 ? 'pm' : 'am';
   hours = hours % 12 || 12;
   minutes = B.string.padStart(minutes, 2);
-  return hours + ':' + minutes + ext;
+  return `${hours}:${minutes}${ext}`;
 };
 
-B.format.shortDateTime = function (ms) {
-  return B.format.shortTime(ms) + ' ' + B.format.shortDate(ms);
-};
+B.format.shortDateTime = ms => `${B.format.shortTime(ms)} ${B.format.shortDate(ms)}`;
 
-B.format.commonDateTime = function (ms) {
-  return B.format.shortTime(ms) + ' ' + B.format.commonDateString(ms);
-};
+B.format.commonDateTime = ms => `${B.format.shortTime(ms)} ${B.format.commonDateString(ms)}`;
 
-B.format.date = function (ms) { // TODO - copy result from Upvise
-  return Format.date(ms)
-};
+//
+// TODO - re-create Upvise implementations here...
+//
+B.format.date = ms => Format.date(ms);
+B.format.time = ms => Format.time(ms);
+B.format.dateTime = ms => Format.datetime(ms);
 
-B.format.dateTime = function (ms) { // TODO - copy result from Upvise
-  return Format.datetime(ms);
-};
-
-B.format.capitalise = function (item) {
-  var str = B.str(item);
+B.format.capitalise = item => {
+  const str = B.str(item);
 
   if (str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -920,34 +894,32 @@ B.format.capitalise = function (item) {
   }
 };
 
-B.format.title = function (item) {
-  var list = B.str(item).split(' ');
+B.format.title = item => {
+  const list = B.str(item).split(' ');
   return B.util.map(list, B.format.capitalise).join(' ');
 };
 
-B.format.distance = function (metres) {
+B.format.distance = metres => {
   metres = B.int(metres);
   if (metres < 1000) {
-    return metres + 'm';
+    return `${metres}m`;
   } else {
-    return B.number.commify1(metres / 1000) + 'km';
+    return `${B.number.commify1(metres / 1000)}km`;
   }
 };
 
-B.format.multiValue = function (item) {
-  return B.str(item).replace(/\|/g, ', ');
-};
+B.format.multiValue = item => B.str(item).replace(/\|/g, ', ');
 
-B.format.upviseLink = function (table, id, name) {
+B.format.upviseLink = (table, id, name) => {
   if (table == "" || id == "" || id == null)
     return "";
   if (table == "Forms.forms") {
     id = id.split(":")[0];
   }
-  var item = Query.selectId(table, id);
+  const item = Query.selectId(table, id);
   if (item == null)
     return "";
-  var func = ""; // TODO - make this shit a switch statement in a separate function
+  let func = ""; // TODO - make this shit a switch statement in a separate function
   if (table == "Assets.assets")
     func = "Assets.viewAsset";
   else if (table == "Assets.locations")
@@ -984,11 +956,11 @@ B.format.upviseLink = function (table, id, name) {
     func = "Tools.viewTool";
   name = name || item.name;
   if (table == "Forms.forms" && !name) {
-    name = Query.names("Forms.templates", item.templateid) + " " + item.name;
+    name = `${Query.names("Forms.templates", item.templateid)} ${item.name}`;
   }
   func = _func(func, id);
-  var onclick = "event.cancelBubble=true;" + _func("Engine.eval", func);
-  return '<a class=link onclick="' + onclick + '">' + name + '</a>';
+  const onclick = `event.cancelBubble=true;${_func("Engine.eval", func)}`;
+  return `<a class=link onclick="${onclick}">${name}</a>`;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -999,7 +971,7 @@ B.format.upviseLink = function (table, id, name) {
 
 B.util = {};
 
-B.util.ensureDateObj = function (date) {
+B.util.ensureDateObj = date => {
   if (!(date instanceof Date)) {
     return new Date(B.int(date));
   }
@@ -1009,25 +981,21 @@ B.util.ensureDateObj = function (date) {
 //
 // Creates a string of a function with paramaters
 //
-B.util.func = function (functionName, paramaters) {
-  return functionName + '(' + paramaters.join(',') + ')';
-};
+B.util.func = (functionName, paramaters) => `${functionName}(${paramaters.join(',')})`;
 
 //
 // Create an Engine.eval() string with paramaters
 //
-B.util.engineCall = function (functionName, paramaters) {
-  return util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
-};
+B.util.engineCall = (functionName, paramaters) => util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
 
 //
 // Creates an array of specified attributes in an array of objects.
 //
-B.util.pluck = function (arrayOfObjects, key) {
-  var result = [];
+B.util.pluck = (arrayOfObjects, key) => {
+  const result = [];
 
-  for (var i = 0; i < arrayOfObjects.length; i++) {
-    var item = arrayOfObjects[i];
+  for (let i = 0; i < arrayOfObjects.length; i++) {
+    const item = arrayOfObjects[i];
     if (item && item[key]) {
       result.push(item[key]);
     }
@@ -1036,8 +1004,8 @@ B.util.pluck = function (arrayOfObjects, key) {
   return result;
 };
 
-B.util.each = function (list, callback) {
-  for (var i = 0; i < list.length; i++) {
+B.util.each = (list, callback) => {
+  for (let i = 0; i < list.length; i++) {
     callback(list[i]);
   }
 };
@@ -1045,7 +1013,7 @@ B.util.each = function (list, callback) {
 //
 // Maps over a collection and applies the transformation function. Returns a new array.
 //
-B.util.map = function (list, mappingFunction) {
+B.util.map = (list, mappingFunction) => {
   if (typeof mappingFunction !== 'function') {
     B.logger.error('No mapping function provided to B.util.map()');
     return list;
@@ -1058,24 +1026,24 @@ B.util.map = function (list, mappingFunction) {
   }
 };
 
-B.util.mapArray = function (list, mappingFunction) {
-  var result = [];
+B.util.mapArray = (list, mappingFunction) => {
+  const result = [];
 
-  for (var i = 0; i < list.length; i++) {
-    var item = list[i];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
     result.push(mappingFunction(item, i));
   }
 
   return result;
 };
 
-B.util.mapObject = function (list, mappingFunction) {
-  var keys = Object.keys(list);
-  var result = {};
+B.util.mapObject = (list, mappingFunction) => {
+  const keys = Object.keys(list);
+  const result = {};
 
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var value = list[i];
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const value = list[i];
 
     result[key] = mappingFunction(value, key, i);
   }
@@ -1083,15 +1051,13 @@ B.util.mapObject = function (list, mappingFunction) {
   return result;
 };
 
-B.util.createIn = function (key, list) {
-  return key + ' IN (' + B.util.map(list, B.util.esc).join(', ') + ')';
-};
+B.util.createIn = (key, list) => `${key} IN (${B.util.map(list, B.util.esc).join(', ')})`;
 
-B.util.expand = function (list, key) {
-  var result = {};
+B.util.expand = (list, key) => {
+  const result = {};
 
-  for (var i = 0; i < list.length; i++) {
-    var item = list[i];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
     if (item[key]) {
       result[item[key]] = item;
     }
@@ -1100,12 +1066,12 @@ B.util.expand = function (list, key) {
   return result;
 };
 
-B.util.expandList = function (list, key) {
-  var result = {};
+B.util.expandList = (list, key) => {
+  const result = {};
 
-  for (var i = 0; i < list.length; i++) {
-    var item = list[i];
-    var itemKey = item[key];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    const itemKey = item[key];
 
     if (itemKey) {
       if (result[itemKey]) {
@@ -1119,14 +1085,9 @@ B.util.expandList = function (list, key) {
   return result;
 };
 
-B.util.esc = function (str) {
-  return B.util._quotation(B.str(str), "'", "'");
-};
+B.util.esc = str => B.util._quotation(B.str(str), "'", "'");
 
-B.util._quotation = function (value, open, close) {
-  open = open || "'";
-  close = close || open;
-
+B.util._quotation = (value, open = "'", close = open) => {
   if (typeof value === 'string') {
     return open + value + close;
   } else {
@@ -1134,7 +1095,7 @@ B.util._quotation = function (value, open, close) {
   }
 };
 
-B.util.isEmpty = function (obj) {
+B.util.isEmpty = obj => {
   if (Array.isArray(obj)) {
     return !!obj.length;
   } else {
@@ -1150,33 +1111,32 @@ B.util.isEmpty = function (obj) {
 
 B.migrations = {};
 
-B.migrations.renameCustomField = function(formid, table, oldId, newId, dryrun) {
+B.migrations.renameCustomField = (formid, table, oldId, newId, dryrun) => {
   dryrun = typeof dryrun === 'boolean' ? dryrun : true;
 
   dryrun && B.logger.info('Running renameCustomField in dry run mode.');
 
-  var field = Query.select('Notes.fields', '*', 'formid=' + esc(formid) + ' AND name=' + esc(oldId))[0];
+  const field = Query.select('Notes.fields', '*', `formid=${esc(formid)} AND name=${esc(oldId)}`)[0];
 
   if (field && field.id) {
     B.logger.log('Working on field', field);
-    B.logger.log(oldId + ' -> ' + newId);
+    B.logger.log(`${oldId} -> ${newId}`);
 
     if (!dryrun) {
       Query.updateId('Notes.fields', field.id, 'name', newId);
     }
 
-    var items = Query.select(table, '*', 'custom != ""');
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var custom = JSON.parse(item.custom || '{}');
-      var value = custom[oldId]; // Note to self: scalar primitives (number, string, etc) are passed by value so this is safe.
-
+    const items = Query.select(table, '*', 'custom != ""');
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const custom = JSON.parse(item.custom || '{}');
+      const value = custom[oldId]; // Note to self: scalar primitives (number, string, etc) are passed by value so this is safe.
 
       if (value) {
         custom[newId] = value;
         delete custom[oldId];
 
-        B.logger.log('Writing new custom fields for ' + esc(item.name), custom);
+        B.logger.log(`Writing new custom fields for ${esc(item.name)}`, custom);
 
         if (!dryrun) {
           Query.updateId(table, item.id, 'custom', JSON.stringify(custom));
@@ -1200,7 +1160,7 @@ try {
 }
 
 try {
-  B.logger.info('Billow.js version: v' + B.VERSION);
+  B.logger.info(`Billow.js version: v${B.VERSION}`);
   window.B = B;
 } catch (err) {
   //
@@ -1210,7 +1170,7 @@ try {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 try {
-  Report.writeDashboard = function () {
+  Report.writeDashboard = () => {
     B.logger.log('BILLOW.js successfully loaded');
     B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
     B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].get('name'));
