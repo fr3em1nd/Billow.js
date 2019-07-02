@@ -12,32 +12,27 @@ B.VERSION = '1.2.7';
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.logger = {};
+B.logger = {
+  _shouldLog() {
+    return typeof WEB === 'function' ? WEB() : true;
+  },
 
-B.logger.error = function () {
-  if (typeof WEB === 'function' && WEB()) {
-    console.error.apply(undefined, arguments);
-  }
+  error(...message) {
+    this._shouldLog() && console.error(...message);
+  },
+
+  warn(...message) {
+    this._shouldLog() && console.warn(...message);
+  },
+
+  log(...message) {
+    this._shouldLog() && console.log(...message);
+  },
+
+  info(...message) {
+    this._shouldLog() && console.info(...message);
+  },
 };
-
-B.logger.warn = function () {
-  if (typeof WEB === 'function' && WEB()) {
-    console.warn.apply(undefined, arguments);
-  }
-};
-
-B.logger.log = function () {
-  if (typeof WEB === 'function' && WEB()) {
-    console.log.apply(undefined, arguments);
-  }
-};
-
-B.logger.info = function () {
-  if (typeof WEB === 'function' && WEB()) {
-    console.info.apply(undefined, arguments);
-  }
-};
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
