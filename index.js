@@ -325,7 +325,7 @@ B.QueryItem = class QueryItem {
     return custom[ref];
   }
 
-  setCustom = function (ref, value) {
+  setCustom(ref, value) {
     let custom = JSON.parse(this.get('custom') || '{}');
     custom[ref] = value;
     this.set('custom', JSON.stringify(custom));
