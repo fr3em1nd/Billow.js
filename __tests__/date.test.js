@@ -11,8 +11,13 @@ test('B.date.getTimeInDay', () => {
   expect(B.date.getTimeInDay(B.date.HOUR * 25)).toEqual(B.date.HOUR);
 
   const now = B.date.now();
-  const today = B.date.today();
-  const tid = now - today + ((new Date()).getTimezoneOffset() * 60 * 1000);
+  const d = new Date(now);
+  const tid = (
+    (d.getHours() * 60 * 60 * 1000) +
+    (d.getMinutes() * 60 * 1000) +
+    (d.getSeconds() * 1000) +
+    d.getMilliseconds()
+  ) + d.getTimezoneOffset() * 60 * 1000;
   expect(B.date.getTimeInDay(now)).toEqual(tid);
 });
 
