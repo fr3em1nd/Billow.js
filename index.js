@@ -821,26 +821,44 @@ B.string = {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.number = {};
+B.number = {
+  round0(num) {
+    return B.num(num).toFixed(0);
+  },
 
-B.number.round0 = num => B.num(num).toFixed(0);
-B.number.round1 = num => B.num(num).toFixed(1);
-B.number.round2 = num => B.num(num).toFixed(2);
+  round1(num) {
+    return B.num(num).toFixed(1);
+  },
 
-B.number.commify = num => {
-  const parts = B.str(num).split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
+  round2(num) {
+    B.num(num).toFixed(2);
+  },
+
+  commify = num => {
+    const parts = B.str(num).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  },
+
+  commify0(num) {
+    B.number.commify(B.number.round0(num));
+  },
+
+  commify1(num) {
+    B.number.commify(B.number.round1(num));
+  },
+
+  commify2(num) {
+    B.number.commify(B.number.round2(num));
+  },
+
+  //
+  // Convert a float to a string (with a dollar sign, comma separated)
+  //
+  currency(num) {
+    return `$${B.number.commify2(num)}`;
+  },
 };
-
-B.number.commify0 = num => B.number.commify(B.number.round0(num));
-B.number.commify1 = num => B.number.commify(B.number.round1(num));
-B.number.commify2 = num => B.number.commify(B.number.round2(num));
-
-//
-// Convert a float to a string (with a dollar sign, comma separated)
-//
-B.number.currency = number => `$${B.number.commify2(number)}`;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -848,119 +866,141 @@ B.number.currency = number => `$${B.number.commify2(number)}`;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.format = {};
+B.format = {
+  commonDateString(...args) {
+    return B.date.commonDateString(...args);
+  },
 
-B.format.commonDateString = B.date.commonDateString;
-B.format.currency = B.number.currency;
-B.format.padStart = B.string.padStart;
-B.format.padEnd = B.string.padEnd;
+  currency(...args) {
+    return B.number.currency(...args);
+  },
 
-B.format.shortDate = ms => {
-  const date = B.util.ensureDateObj(ms);
-  const year = date.getFullYear();
-  const month = B.string.padStart(date.getMonth() + 1, 2);
-  const day = B.string.padStart(date.getDate(), 2);
-  return `${day}/${month}/${year}`;
-};
+  padStart(...args) {
+    return B.string.padStart(...args);
+  },
 
-B.format.shortTime = ms => {
-  const d = B.util.ensureDateObj(ms);
-  let hours = d.getHours();
-  let minutes = d.getMinutes();
-  const ext = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12 || 12;
-  minutes = B.string.padStart(minutes, 2);
-  return `${hours}:${minutes}${ext}`;
-};
+  padEnd(...args) {
+    return B.string.padEnd(...args);
+  },
 
-B.format.shortDateTime = ms => `${B.format.shortTime(ms)} ${B.format.shortDate(ms)}`;
+  shortDate(ms) {
+    const date = B.util.ensureDateObj(ms);
+    const year = date.getFullYear();
+    const month = B.string.padStart(date.getMonth() + 1, 2);
+    const day = B.string.padStart(date.getDate(), 2);
+    return `${day}/${month}/${year}`;
+  },
 
-B.format.commonDateTime = ms => `${B.format.shortTime(ms)} ${B.format.commonDateString(ms)}`;
+  shortTime(ms) {
+    const d = B.util.ensureDateObj(ms);
+    let hours = d.getHours();
+    let minutes = d.getMinutes();
+    const ext = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12 || 12;
+    minutes = B.string.padStart(minutes, 2);
+    return `${hours}:${minutes}${ext}`;
+  },
 
-//
-// TODO - re-create Upvise implementations here...
-//
-B.format.date = ms => Format.date(ms);
-B.format.time = ms => Format.time(ms);
-B.format.dateTime = ms => Format.datetime(ms);
+  shortDateTime(ms) {
+    return `${B.format.shortTime(ms)} ${B.format.shortDate(ms)}`;
+  },
 
-B.format.capitalise = item => {
-  const str = B.str(item);
+  commonDateTime(ms) {
+    return `${B.format.shortTime(ms)} ${B.format.commonDateString(ms)}`;
+  },
 
-  if (str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  } else {
-    return '';
-  }
-};
+  date(ms) {
+    return Format.date(ms);
+  },
 
-B.format.title = item => {
-  const list = B.str(item).split(' ');
-  return B.util.map(list, B.format.capitalise).join(' ');
-};
+  time(ms) {
+    return Format.time(ms);
+  },
 
-B.format.distance = metres => {
-  metres = B.int(metres);
-  if (metres < 1000) {
-    return `${metres}m`;
-  } else {
-    return `${B.number.commify1(metres / 1000)}km`;
-  }
-};
+  dateTime(ms) {
+    return Format.datetime(ms);
+  },
 
-B.format.multiValue = item => B.str(item).replace(/\|/g, ', ');
+  capitalise(item) {
+    const str = B.str(item);
 
-B.format.upviseLink = (table, id, name) => {
-  if (table == "" || id == "" || id == null)
-    return "";
-  if (table == "Forms.forms") {
-    id = id.split(":")[0];
-  }
-  const item = Query.selectId(table, id);
-  if (item == null)
-    return "";
-  let func = ""; // TODO - make this shit a switch statement in a separate function
-  if (table == "Assets.assets")
-    func = "Assets.viewAsset";
-  else if (table == "Assets.locations")
-    func = "Assets.viewSite";
-  else if (table == "Projects.projects")
-    func = "Projects.viewProject";
-  else if (table == "System.files")
-    func = "Files.viewFile";
-  else if (table == "Qhse.procedures")
-    func = "Qhse.viewArticle";
-  else if (table == "Sales.products")
-    func = "Sales.viewProduct";
-  else if (table == "Sales.opportunities")
-    func = "Sales.viewOpp";
-  else if (table == "Sales.quotes")
-    func = "Sales.viewQuote";
-  else if (table == "Jobs.jobs")
-    func = "Jobs.viewJob";
-  else if (table == "Forms.forms")
-    func = "Forms.viewForm";
-  else if (table == "Contacts.contacts")
-    func = "Contacts.viewContact";
-  else if (table == "Contacts.companies")
-    func = "Contacts.viewCompany";
-  else if (table == "Calendar.events")
-    func = "Calendar.viewEvent";
-  else if (table == "Tasks.tasks")
-    func = "Tasks.viewTask";
-  else if (table == "Tasks.lists")
-    func = "Tasks.viewTaskList";
-  else if (table == "Time.slots")
-    func = "Time.viewSlot";
-  else if (table == "Tools.tools")
-    func = "Tools.viewTool";
-  name = name || item.name;
-  if (table == "Forms.forms" && !name) {
-    name = `${Query.names("Forms.templates", item.templateid)} ${item.name}`;
-  }
-  func = _func(func, id);
-  const onclick = `event.cancelBubble=true;${_func("Engine.eval", func)}`;
-  return `<a class=link onclick="${onclick}">${name}</a>`;
+    if (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    } else {
+      return '';
+    }
+  },
+
+  title(item) {
+    const list = B.str(item).split(' ');
+    return B.util.map(list, B.format.capitalise).join(' ');
+  },
+
+  distance(metres) {
+    metres = B.int(metres);
+    if (metres < 1000) {
+      return `${metres}m`;
+    } else {
+      return `${B.number.commify1(metres / 1000)}km`;
+    }
+  },
+
+  multiValue(item) {
+    return B.str(item).replace(/\|/g, ', ');
+  },
+
+  upviseLink(table, id, name) {
+    if (table == "" || id == "" || id == null)
+      return "";
+    if (table == "Forms.forms") {
+      id = id.split(":")[0];
+    }
+    const item = Query.selectId(table, id);
+    if (item == null)
+      return "";
+    let func = ""; // TODO - make this shit a switch statement in a separate function
+    if (table == "Assets.assets")
+      func = "Assets.viewAsset";
+    else if (table == "Assets.locations")
+      func = "Assets.viewSite";
+    else if (table == "Projects.projects")
+      func = "Projects.viewProject";
+    else if (table == "System.files")
+      func = "Files.viewFile";
+    else if (table == "Qhse.procedures")
+      func = "Qhse.viewArticle";
+    else if (table == "Sales.products")
+      func = "Sales.viewProduct";
+    else if (table == "Sales.opportunities")
+      func = "Sales.viewOpp";
+    else if (table == "Sales.quotes")
+      func = "Sales.viewQuote";
+    else if (table == "Jobs.jobs")
+      func = "Jobs.viewJob";
+    else if (table == "Forms.forms")
+      func = "Forms.viewForm";
+    else if (table == "Contacts.contacts")
+      func = "Contacts.viewContact";
+    else if (table == "Contacts.companies")
+      func = "Contacts.viewCompany";
+    else if (table == "Calendar.events")
+      func = "Calendar.viewEvent";
+    else if (table == "Tasks.tasks")
+      func = "Tasks.viewTask";
+    else if (table == "Tasks.lists")
+      func = "Tasks.viewTaskList";
+    else if (table == "Time.slots")
+      func = "Time.viewSlot";
+    else if (table == "Tools.tools")
+      func = "Tools.viewTool";
+    name = name || item.name;
+    if (table == "Forms.forms" && !name) {
+      name = `${Query.names("Forms.templates", item.templateid)} ${item.name}`;
+    }
+    func = _func(func, id);
+    const onclick = `event.cancelBubble=true;${_func("Engine.eval", func)}`;
+    return `<a class=link onclick="${onclick}">${name}</a>`;
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -969,137 +1009,146 @@ B.format.upviseLink = (table, id, name) => {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.util = {};
-
-B.util.ensureDateObj = date => {
-  if (!(date instanceof Date)) {
-    return new Date(B.int(date));
-  }
-  return date;
-};
-
-//
-// Creates a string of a function with paramaters
-//
-B.util.func = (functionName, paramaters) => `${functionName}(${paramaters.join(',')})`;
-
-//
-// Create an Engine.eval() string with paramaters
-//
-B.util.engineCall = (functionName, paramaters) => util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
-
-//
-// Creates an array of specified attributes in an array of objects.
-//
-B.util.pluck = (arrayOfObjects, key) => {
-  const result = [];
-
-  for (let i = 0; i < arrayOfObjects.length; i++) {
-    const item = arrayOfObjects[i];
-    if (item && item[key]) {
-      result.push(item[key]);
+B.util = {
+  ensureDateObj(date) {
+    if (!(date instanceof Date)) {
+      return new Date(B.int(date));
     }
-  }
+    return date;
+  },
 
-  return result;
-};
+  //
+  // Creates a string of a function with paramaters
+  //
+  func(functionName, paramaters) {
+    return `${functionName}(${paramaters.join(',')})`;
+  },
 
-B.util.each = (list, callback) => {
-  for (let i = 0; i < list.length; i++) {
-    callback(list[i]);
-  }
-};
+  //
+  // Create an Engine.eval() string with paramaters
+  //
+  engineCall(functionName, paramaters) {
+    return util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
+  },
 
-//
-// Maps over a collection and applies the transformation function. Returns a new array.
-//
-B.util.map = (list, mappingFunction) => {
-  if (typeof mappingFunction !== 'function') {
-    B.logger.error('No mapping function provided to B.util.map()');
-    return list;
-  }
+  //
+  // Creates an array of specified attributes in an array of objects.
+  //
+  pluck(arrayOfObjects, key) {
+    const result = [];
 
-  if (Array.isArray(list)) {
-    return B.util.mapArray(list, mappingFunction);
-  } else {
-    return B.util.mapObject(list, mappingFunction);
-  }
-};
-
-B.util.mapArray = (list, mappingFunction) => {
-  const result = [];
-
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    result.push(mappingFunction(item, i));
-  }
-
-  return result;
-};
-
-B.util.mapObject = (list, mappingFunction) => {
-  const keys = Object.keys(list);
-  const result = {};
-
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    const value = list[i];
-
-    result[key] = mappingFunction(value, key, i);
-  }
-
-  return result;
-};
-
-B.util.createIn = (key, list) => `${key} IN (${B.util.map(list, B.util.esc).join(', ')})`;
-
-B.util.expand = (list, key) => {
-  const result = {};
-
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    if (item[key]) {
-      result[item[key]] = item;
-    }
-  }
-
-  return result;
-};
-
-B.util.expandList = (list, key) => {
-  const result = {};
-
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    const itemKey = item[key];
-
-    if (itemKey) {
-      if (result[itemKey]) {
-        result[itemKey].push(item);
-      } else {
-        result[itemKey] = [item];
+    for (let i = 0; i < arrayOfObjects.length; i++) {
+      const item = arrayOfObjects[i];
+      if (item && item[key]) {
+        result.push(item[key]);
       }
     }
-  }
 
-  return result;
-};
+    return result;
+  },
 
-B.util.esc = str => B.util._quotation(B.str(str), "'", "'");
+  each(list, callback) {
+    for (let i = 0; i < list.length; i++) {
+      callback(list[i]);
+    }
+  },
 
-B.util._quotation = (value, open = "'", close = open) => {
-  if (typeof value === 'string') {
-    return open + value + close;
-  } else {
-    return value;
-  }
-};
+  //
+  // Maps over a collection and applies the transformation function. Returns a new array.
+  //
+  map(list, mappingFunction) {
+    if (typeof mappingFunction !== 'function') {
+      B.logger.error('No mapping function provided to B.util.map()');
+      return list;
+    }
 
-B.util.isEmpty = obj => {
-  if (Array.isArray(obj)) {
-    return !!obj.length;
-  } else {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
+    if (Array.isArray(list)) {
+      return B.util.mapArray(list, mappingFunction);
+    } else {
+      return B.util.mapObject(list, mappingFunction);
+    }
+  },
+
+  mapArray(list, mappingFunction) {
+    const result = [];
+
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
+      result.push(mappingFunction(item, i));
+    }
+
+    return result;
+  },
+
+  mapObject(list, mappingFunction) {
+    const keys = Object.keys(list);
+    const result = {};
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = list[i];
+
+      result[key] = mappingFunction(value, key, i);
+    }
+
+    return result;
+  },
+
+  createIn(key, list) {
+    const items = B.util.map(list, B.util.esc).join(', ');
+    return `${key} IN (${items})`;
+  },
+
+  expand(list, key) {
+    const result = {};
+
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
+      if (item[key]) {
+        result[item[key]] = item;
+      }
+    }
+
+    return result;
+  },
+
+  expandList(list, key) {
+    const result = {};
+
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
+      const itemKey = item[key];
+
+      if (itemKey) {
+        if (result[itemKey]) {
+          result[itemKey].push(item);
+        } else {
+          result[itemKey] = [item];
+        }
+      }
+    }
+
+    return result;
+  },
+
+  esc(str) {
+    return B.util._quotation(B.str(str), "'", "'");
+  },
+
+  _quotation(value, open = "'", close = open) {
+    if (typeof value === 'string') {
+      return open + value + close;
+    } else {
+      return value;
+    }
+  },
+
+  isEmpty(obj) {
+    if (Array.isArray(obj)) {
+      return obj.length === 0;
+    } else {
+      return Object.keys(obj).length === 0 && obj.constructor === Object;
+    }
   }
 };
 
@@ -1109,16 +1158,19 @@ B.util.isEmpty = obj => {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.migrations = {};
+B.migrations = {
+  renameCustomField(formid, table, oldId, newId, dryrun = true) {
+    dryrun && B.logger.info('Running renameCustomField in dry run mode.');
 
-B.migrations.renameCustomField = (formid, table, oldId, newId, dryrun) => {
-  dryrun = typeof dryrun === 'boolean' ? dryrun : true;
+    const field = B.query.selectOne('Notes.fields', {
+      formid,
+      name: oldId,
+    });
 
-  dryrun && B.logger.info('Running renameCustomField in dry run mode.');
+    if (!field) {
+      return B.logger.error('Custom field not found');
+    }
 
-  const field = Query.select('Notes.fields', '*', `formid=${esc(formid)} AND name=${esc(oldId)}`)[0];
-
-  if (field && field.id) {
     B.logger.log('Working on field', field);
     B.logger.log(`${oldId} -> ${newId}`);
 
@@ -1127,8 +1179,7 @@ B.migrations.renameCustomField = (formid, table, oldId, newId, dryrun) => {
     }
 
     const items = Query.select(table, '*', 'custom != ""');
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (const item of items) {
       const custom = JSON.parse(item.custom || '{}');
       const value = custom[oldId]; // Note to self: scalar primitives (number, string, etc) are passed by value so this is safe.
 
@@ -1143,9 +1194,9 @@ B.migrations.renameCustomField = (formid, table, oldId, newId, dryrun) => {
         }
       }
     }
-  }
 
-  !dryrun && Engine.refresh();
+    !dryrun && Engine.refresh();
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1153,6 +1204,7 @@ B.migrations.renameCustomField = (formid, table, oldId, newId, dryrun) => {
 // Magically export BILLOW.js to the right places
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 try {
   module.exports = B;
 } catch (err) {
@@ -1162,22 +1214,6 @@ try {
 try {
   B.logger.info(`Billow.js version: v${B.VERSION}`);
   window.B = B;
-} catch (err) {
-  //
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-try {
-  Report.writeDashboard = () => {
-    B.logger.log('BILLOW.js successfully loaded');
-    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }));
-    B.logger.log(B.Forms.select({ id: '1B1A76664AA2701E6B4CB87B905373' }).items[0].get('name'));
-    B.logger.log(B.FormTemplates.select());
-    B.logger.log(B.Contacts.select());
-    B.logger.log(B.Companies.select());
-  };
 } catch (err) {
   //
 }
