@@ -4,7 +4,12 @@
 
 var B = {};
 
-B.VERSION = '1.2.7';
+B.VERSION = '1.2.8';
+
+const x = (methodName) => {
+  B.logger.log(caller); // non-standard but it could be helpful
+  throw new Error('Missing required paramater: ' + methodName);
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -162,7 +167,30 @@ B.query = {
 
     return Query.update(table, values, 'id=' + esc(id));
   },
+
+  _getName(item = {name: ''}) {
+    return item.name || item.productname;
+  },
+
+  names(table = x`table`, id = x`id`) {
+    const item = B.query.selectId(table, id);
+    return B.query._getName(item);
+  },
+
+  options(table = x`table`, query = '', sort = 'name') {
+    const items = B.query.select(table, query, sort);
+    let buffer = [':None'];
+
+    for (const item of items) {
+      const id = table.toLowerCase() === 'system.users' ? item.name : item.id;
+      const name = B.query._getName(item);
+      buffer.push(`${id}:${name}`);
+    }
+
+    return buffer.join('|');
+  },
 };
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // RESULT SET
