@@ -10,10 +10,12 @@ require('babel-polyfill');
 
 const path = require('path');
 const toBeType = require('jest-tobetype');
+const pti = require('puppeteer-to-istanbul');
 expect.extend(toBeType);
 
 beforeAll(async () => {
   jest.setTimeout(300 * 1000);
+  await page.coverage.startJSCoverage(),
   await page.setViewport({
     width: 1280,
     height: 720,
@@ -27,6 +29,11 @@ beforeAll(async () => {
   await page.type('#password', 'vm@2016');
   await page.click('#signin');
   await page.waitForSelector('#fileElem', { timeout: 300 * 1000 });
+});
+
+afterAll(async () => {
+  const js = await page.coverage.stopJSCoverage();
+  pti.write(js);
 });
 
 test('B.query.select()', async () => {

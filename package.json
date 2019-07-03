@@ -24,6 +24,7 @@
     "jest-puppeteer": "4.2.0",
     "jest-tobetype": "^1.2.3",
     "puppeteer": "1.17.0",
+    "puppeteer-to-istanbul": "^1.2.2",
     "upvise-client": "git+https://e3b0eac67ee57ab0d09feb988bff3ae907c57f1b:x-oauth-basic@github.com/Billow-Software/upvise-client.git#v1.1.1"
   },
   "jest": {
