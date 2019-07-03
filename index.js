@@ -779,6 +779,10 @@ B.arr = item => {
   }
 };
 
+B.noop = () => {
+  // empty function
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // STRING UTILS
@@ -831,25 +835,25 @@ B.number = {
   },
 
   round2(num) {
-    B.num(num).toFixed(2);
+    return B.num(num).toFixed(2);
   },
 
-  commify = num => {
+  commify(num) {
     const parts = B.str(num).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return parts.join('.');
   },
 
   commify0(num) {
-    B.number.commify(B.number.round0(num));
+    return B.number.commify(B.number.round0(num));
   },
 
   commify1(num) {
-    B.number.commify(B.number.round1(num));
+    return B.number.commify(B.number.round1(num));
   },
 
   commify2(num) {
-    B.number.commify(B.number.round2(num));
+    return B.number.commify(B.number.round2(num));
   },
 
   //
@@ -1020,15 +1024,15 @@ B.util = {
   //
   // Creates a string of a function with paramaters
   //
-  func(functionName, paramaters) {
+  func(functionName, paramaters = []) {
     return `${functionName}(${paramaters.join(',')})`;
   },
 
   //
   // Create an Engine.eval() string with paramaters
   //
-  engineCall(functionName, paramaters) {
-    return util._func('Engine.eval', [B.util.esc(util._func(functionName, paramaters))]);
+  engineCall(functionName, paramaters = []) {
+    return B.util.func('Engine.eval', [B.util.esc(B.util.func(functionName, paramaters))]);
   },
 
   //
@@ -1047,48 +1051,24 @@ B.util = {
     return result;
   },
 
-  each(list, callback) {
-    for (let i = 0; i < list.length; i++) {
-      callback(list[i]);
+  each(list, callback = B.noop) {
+    for (const item of list) {
+      callback(item);
     }
   },
 
   //
   // Maps over a collection and applies the transformation function. Returns a new array.
   //
-  map(list, mappingFunction) {
-    if (typeof mappingFunction !== 'function') {
-      B.logger.error('No mapping function provided to B.util.map()');
-      return list;
-    }
-
-    if (Array.isArray(list)) {
-      return B.util.mapArray(list, mappingFunction);
-    } else {
-      return B.util.mapObject(list, mappingFunction);
-    }
-  },
-
-  mapArray(list, mappingFunction) {
-    const result = [];
-
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i];
-      result.push(mappingFunction(item, i));
-    }
-
-    return result;
-  },
-
-  mapObject(list, mappingFunction) {
+  map(list, mappingFunction = B.noop) {
     const keys = Object.keys(list);
-    const result = {};
+    const isArray = Array.isArray(list);
+    let result = isArray ? [] : {};
 
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      const value = list[i];
-
-      result[key] = mappingFunction(value, key, i);
+    for (const key of keys) {
+      const value = list[key];
+      const indexOrKey = isArray ? B.int(key) : key;
+      result[key] = mappingFunction(value, indexOrKey);
     }
 
     return result;
@@ -1102,8 +1082,7 @@ B.util = {
   expand(list, key) {
     const result = {};
 
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i];
+    for (const item of list) {
       if (item[key]) {
         result[item[key]] = item;
       }
@@ -1115,8 +1094,7 @@ B.util = {
   expandList(list, key) {
     const result = {};
 
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i];
+    for (const item of list) {
       const itemKey = item[key];
 
       if (itemKey) {
@@ -1132,19 +1110,13 @@ B.util = {
   },
 
   esc(str) {
-    return B.util._quotation(B.str(str), "'", "'");
-  },
-
-  _quotation(value, open = "'", close = open) {
-    if (typeof value === 'string') {
-      return open + value + close;
-    } else {
-      return value;
-    }
+    return "'" + B.str(str) + "'";
   },
 
   isEmpty(obj) {
-    if (Array.isArray(obj)) {
+    if (obj == null || obj == undefined || typeof obj === 'undefined') {
+      return true;
+    } else if (Array.isArray(obj)) {
       return obj.length === 0;
     } else {
       return Object.keys(obj).length === 0 && obj.constructor === Object;

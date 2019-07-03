@@ -43,6 +43,7 @@ test('B.format.shortTime()', () => {
 test('B.format.capitalise()', () => {
   expect(B.format.capitalise('test')).toBe('Test');
   expect(B.format.capitalise('test test test')).toBe('Test test test');
+  expect(B.format.capitalise('')).toBe('');
 });
 
 test('B.format.title()', () => {
