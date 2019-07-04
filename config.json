@@ -23,6 +23,12 @@
       "password": "5RHWt#4p",
       "url": "https://www.upvise.com/uws",
       "version": "*"
+    },
+    {
+      "email": "utima@kontrol4.com",
+      "password": "utima@kontrol4.com",
+      "url": "https://www.upvise.com/uws",
+      "version": "*"
     }
   ]
 }
