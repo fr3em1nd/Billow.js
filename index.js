@@ -7,7 +7,9 @@ var B = {};
 B.VERSION = '1.2.8';
 
 const x = (methodName) => {
-  B.logger.log(caller); // non-standard but it could be helpful
+  //
+  // TODO - is it possible to make this into anything more intersting/useful?
+  //
   throw new Error('Missing required paramater: ' + methodName);
 };
 
@@ -46,7 +48,7 @@ B.logger = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.query = {
-  select(table, query, sort) {
+  select(table = x`table`, query = '', sort = '') {
     const validTable = B.query._checkTable(table);
 
     if (!validTable) {
@@ -79,11 +81,11 @@ B.query = {
     return Query.select(table, '*', query, sort);
   },
 
-  selectOne(table, query, sort) {
+  selectOne(table = x`table`, query = '', sort = '') {
     return B.query.select(table, query, sort)[0];
   },
 
-  selectId(table, id) {
+  selectId(table = x`table`, id = x`id`) {
     const validTable = B.query._checkTable(table);
 
     if (!validTable) {
@@ -94,7 +96,7 @@ B.query = {
     return Query.selectId(table, id || '');
   },
 
-  selectIn(table, field, list, sort) {
+  selectIn(table = x`table`, field = x`field`, list = x`list`, sort = '') {
     const query = B.util.createIn(field, list);
     return B.query.select(table, query, sort);
   },
@@ -102,7 +104,7 @@ B.query = {
   //
   // Get a list of the keys found in a table
   //
-  _getTableKeys(tableName) {
+  _getTableKeys(tableName = x`tableName`) {
     const tableId = Cache._makeLegacyTable(tableName);
     const channel = Cache.channels[tableId];
 
@@ -117,7 +119,7 @@ B.query = {
   //
   // Return an error if any of the given keys are not defined in the db schema
   //
-  _checkKeys(table, keys) {
+  _checkKeys(table = x`table`, keys = x`keys`) {
     const tableKeys = B.query._getTableKeys(table);
 
     for (const key of keys) {
@@ -130,11 +132,11 @@ B.query = {
     return true;
   },
 
-  _checkTable(table) {
+  _checkTable(table = x`table`) {
     return !!Cache.channels[Cache._makeLegacyTable(table)];
   },
 
-  insert(table, values) {
+  insert(table = x`table`, values = x`values`) {
     const validTable = B.query._checkTable(table);
 
     if (!validTable) {
@@ -151,7 +153,7 @@ B.query = {
     return Query.insert(table, values);
   },
 
-  update(table, id, values) {
+  update(table = x`table`, id = x`id`, values = x`values`) {
     const validTable = B.query._checkTable(table);
 
     if (!validTable) {
@@ -198,7 +200,7 @@ B.query = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.ResultSet = class ResultSet {
-  constructor(table, items, Carrier, query = '', sort = '') {
+  constructor(table = x`table`, items = x`items`, Carrier = x`Carrier`, query = '', sort = '') {
     this.table = table;
     this.query = query;
     this.sort = sort;
@@ -209,11 +211,11 @@ B.ResultSet = class ResultSet {
     }
   }
 
-  each(callback) {
+  each(callback = x`callback`) {
     B.util.each(this.items, callback);
   }
 
-  map(callback) {
+  map(callback = x`callback`) {
     return B.util.map(this.items, callback);
   }
 
@@ -250,7 +252,7 @@ B.defineQueryItemProperty = function (obj, key) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.QueryItem = class QueryItem {
-  constructor(item) {
+  constructor(item = x`item`) {
     this._table = ''; // Subclasses should override this!
     this._item = item;
 
@@ -268,11 +270,11 @@ B.QueryItem = class QueryItem {
     B.logger.log('Saving item to db', this._table, this._item);
   }
 
-  get(key) { // TODO - error handling and custom fields and stuff
+  get(key = x`key`) { // TODO - error handling and custom fields and stuff
     return this._item[key];
   }
 
-  get_id2name(key, table) {
+  get_id2name(key = x`key`, table = x`table`) {
     //
     // TODO - Query.name is broken in cases where the table's name value is not called "name".
     // (For example Sales.quoteproduts, where the name field is "productname"
@@ -280,80 +282,80 @@ B.QueryItem = class QueryItem {
     return Query.names(table, this.get(key)) || '';
   }
 
-  get_int(key) {
+  get_int(key = x`key`) {
     return B.int(this.get(key));
   }
 
-  get_float(key) {
+  get_float(key = x`key`) {
     return B.float(this.get(key));
   }
 
-  get_num(key) {
+  get_num(key = x`key`) {
     return B.num(this.get(key));
   }
 
-  get_str(key) {
+  get_str(key = x`key`) {
     return B.str(this.get(key));
   }
 
-  get_currency(key) {
+  get_currency(key = x`key`) {
     return B.format.currency(this.get(key));
   }
 
-  get_commonDateTime(key) {
+  get_commonDateTime(key = x`key`) {
     return B.format.commonDateTime(this.get(key));
   }
 
-  get_commonDate(key) {
+  get_commonDate(key = x`key`) {
     return B.format.commonDateString(this.get(key));
   }
 
-  get_shortDate(key) {
+  get_shortDate(key = x`key`) {
     return B.format.shortDate(this.get(key));
   }
 
-  get_shortTime(key) {
+  get_shortTime(key = x`key`) {
     return B.format.shortTime(this.get(key));
   }
 
-  get_shortDateTime(key) {
+  get_shortDateTime(key = x`key`) {
     return B.format.shortDateTime(this.get(key));
   }
 
-  get_date(key) {
+  get_date(key = x`key`) {
     return B.format.date(this.get(key));
   }
 
-  get_dateTime(key) {
+  get_dateTime(key = x`key`) {
     return B.format.dateTime(this.get(key));
   }
 
-  get_capitalise(key) {
+  get_capitalise(key = x`key`) {
     return B.format.capitalise(this.get(key));
   }
 
-  get_title(key) {
+  get_title(key = x`key`) {
     return B.format.title(this.get(key));
   }
 
-  get_multiValue(key) {
+  get_multiValue(key = x`key`) {
     return B.format.multiValue(this.get(key));
   }
 
-  getUpviseLink(altName) {
+  getUpviseLink(altName = '') {
     return B.format.upviseLink(this._table, this.get('id'), altName);
   }
 
-  set(key, value) { // TODO - error handling and custom fields
+  set(key = x`key`, value = x`value`) { // TODO - error handling and custom fields
     this._item[key] = value;
   }
 
-  getCustom(ref) {
+  getCustom(ref = x`ref`) {
     const custom = JSON.parse(this.get('custom') || '{}');
     return custom[ref];
   }
 
-  setCustom(ref, value) {
+  setCustom(ref = x`ref`, value = x`value`) {
     let custom = JSON.parse(this.get('custom') || '{}');
     custom[ref] = value;
     this.set('custom', JSON.stringify(custom));
@@ -453,18 +455,18 @@ B.Form = class Form extends B.QueryItem {
     this.set('value', JSON.stringify(newValues));
   }
 
-  getValue(ref) {
+  getValue(ref = x`ref`) {
     var vals = this.getValues();
     return vals[ref];
   }
 
-  setValue(ref) {
+  setValue(ref = x`ref`, value = x`value`) {
     var vals = this.getValues();
-    vals[ref] = ref;
+    vals[ref] = value;
     this.setValues(vals);
   }
 
-  getSubforms(field) {
+  getSubforms(field = x`field`) {
     return B.Forms.select(
       {
         linkedid: this.get('id') + ':' + field
@@ -651,17 +653,17 @@ B.QuoteProduct = class QuoteProduct extends B.QueryItem {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.QueryFactory = class QueryFactory {
-  constructor(table, carrier) {
+  constructor(table = x`table`, carrier = x`carrier`) {
     this.table = table;
     this.carrier = carrier;
   }
 
-  select(query, sort) {
+  select(query = '', sort = '') {
     const items = B.query.select(this.table, query, sort);
     return new B.ResultSet(this.table, items, this.carrier, query, sort);
   }
 
-  selectOne(query, sort) {
+  selectOne(query = '', sort = '') {
     const item = B.query.select(this.table, query, sort)[0];
 
     if (item) {
@@ -669,7 +671,7 @@ B.QueryFactory = class QueryFactory {
     }
   }
 
-  selectId(id) {
+  selectId(id = x`id`) {
     const item = B.query.selectId(this.table, id);
 
     if (item) {
@@ -677,7 +679,7 @@ B.QueryFactory = class QueryFactory {
     }
   }
 
-  selectIn(field, list, sort) {
+  selectIn(field = x`field`, list = x`list`, sort = x`sort`) {
     const items = B.query.selectIn(this.table, field, list, sort);
     return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
   }
@@ -725,7 +727,7 @@ B.date = {
   DAY: 1000 * 60 * 60 * 24,
   WEEK: 1000 * 60 * 60 * 24 * 7,
 
-  getTimeInDay(time) {
+  getTimeInDay(time = x`time`) {
     const d = new Date(time);
     return d.getTime() % B.date.DAY;
   },
@@ -743,7 +745,7 @@ B.date = {
   //
   // Converts a date to a string more appropriate for display to the user (14 Jul 2017)
   //
-  commonDateString(date) {
+  commonDateString(date = x`date`) {
     let dateString = '';
     let tempDate = date;
 
@@ -762,20 +764,17 @@ B.date = {
   },
 };
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // TYPE CASTING UTILS
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-B.int = item => parseInt(B.num(item));
+B.int = (item) => parseInt(B.num(item));
 
-B.float = item => parseFloat(B.num(item));
+B.float = (item) => parseFloat(B.num(item));
 
-B.num = item => {
+B.num = (item) => {
   const num = Number(item);
 
   if (isNaN(num)) {
@@ -785,7 +784,7 @@ B.num = item => {
   }
 };
 
-B.str = item => {
+B.str = (item) => {
   if (item == undefined || typeof item === 'function' || typeof item === 'object') {
     return '';
   }
@@ -799,7 +798,7 @@ B.str = item => {
   }
 };
 
-B.arr = item => {
+B.arr = (item) => {
   if (Array.isArray(item)) {
     return item;
   } else {
@@ -818,7 +817,7 @@ B.noop = () => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.string = {
-  padStart(item, num) {
+  padStart(item = x`item`, num = x`num`) {
     let str = B.str(item);
     while (str.length < num) {
       str = '0' + str;
@@ -826,7 +825,7 @@ B.string = {
     return str;
   },
 
-  padEnd(item, num) {
+  padEnd(item = x`item`, num = x`num`) {
     let str = B.str(item);
     while (str.length < num) {
       str = str + '0';
@@ -834,7 +833,7 @@ B.string = {
     return str;
   },
 
-  pluralise(singularForm, pluralForm, count, include) {
+  pluralise(singularForm = x`singulatForm`, pluralForm = x`pluralForm`, count = x`count`, include = false) {
     let form = '';
 
     if (count === 1) {
@@ -915,7 +914,7 @@ B.format = {
     return B.string.padEnd(...args);
   },
 
-  shortDate(ms) {
+  shortDate(ms = B.date.now()) {
     const date = B.util.ensureDateObj(ms);
     const year = date.getFullYear();
     const month = B.string.padStart(date.getMonth() + 1, 2);
@@ -923,7 +922,7 @@ B.format = {
     return `${day}/${month}/${year}`;
   },
 
-  shortTime(ms) {
+  shortTime(ms = B.date.now()) {
     const d = B.util.ensureDateObj(ms);
     let hours = d.getHours();
     let minutes = d.getMinutes();
@@ -933,27 +932,27 @@ B.format = {
     return `${hours}:${minutes}${ext}`;
   },
 
-  shortDateTime(ms) {
+  shortDateTime(ms = B.date.now()) {
     return `${B.format.shortTime(ms)} ${B.format.shortDate(ms)}`;
   },
 
-  commonDateTime(ms) {
+  commonDateTime(ms = B.date.now()) {
     return `${B.format.shortTime(ms)} ${B.format.commonDateString(ms)}`;
   },
 
-  date(ms) {
+  date(ms = B.date.now()) {
     return Format.date(ms);
   },
 
-  time(ms) {
+  time(ms = B.date.now()) {
     return Format.time(ms);
   },
 
-  dateTime(ms) {
+  dateTime(ms = B.date.now()) {
     return Format.datetime(ms);
   },
 
-  capitalise(item) {
+  capitalise(item = x`item`) {
     const str = B.str(item);
 
     if (str) {
@@ -963,12 +962,12 @@ B.format = {
     }
   },
 
-  title(item) {
+  title(item = x`item`) {
     const list = B.str(item).split(' ');
     return B.util.map(list, B.format.capitalise).join(' ');
   },
 
-  distance(metres) {
+  distance(metres = x`metres`) {
     metres = B.int(metres);
     if (metres < 1000) {
       return `${metres}m`;
@@ -977,11 +976,11 @@ B.format = {
     }
   },
 
-  multiValue(item) {
+  multiValue(item = x`item`) {
     return B.str(item).replace(/\|/g, ', ');
   },
 
-  upviseLink(table, id, name) {
+  upviseLink(table = x`table`, id = x`id`, name = '') {
     if (table == "" || id == "" || id == null)
       return "";
     if (table == "Forms.forms") {
@@ -1027,7 +1026,7 @@ B.format = {
       func = "Tools.viewTool";
     name = name || item.name;
     if (table == "Forms.forms" && !name) {
-      name = `${Query.names("Forms.templates", item.templateid)} ${item.name}`;
+      name = `${B.query.names("Forms.templates", item.templateid)} ${item.name}`;
     }
     func = _func(func, id);
     const onclick = `event.cancelBubble=true;${_func("Engine.eval", func)}`;
@@ -1042,7 +1041,7 @@ B.format = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.util = {
-  ensureDateObj(date) {
+  ensureDateObj(date = new Date()) {
     if (!(date instanceof Date)) {
       return new Date(B.int(date));
     }
@@ -1052,25 +1051,24 @@ B.util = {
   //
   // Creates a string of a function with paramaters
   //
-  func(functionName, paramaters = []) {
+  func(functionName = x`functionName`, paramaters = []) {
     return `${functionName}(${paramaters.join(',')})`;
   },
 
   //
   // Create an Engine.eval() string with paramaters
   //
-  engineCall(functionName, paramaters = []) {
+  engineCall(functionName = x`functionName`, paramaters = []) {
     return B.util.func('Engine.eval', [B.util.esc(B.util.func(functionName, paramaters))]);
   },
 
   //
   // Creates an array of specified attributes in an array of objects.
   //
-  pluck(arrayOfObjects, key) {
+  pluck(arrayOfObjects = x`arrayOfObjects`, key = x`key`) {
     const result = [];
 
-    for (let i = 0; i < arrayOfObjects.length; i++) {
-      const item = arrayOfObjects[i];
+    for (const item of arrayOfObjects) {
       if (item && item[key]) {
         result.push(item[key]);
       }
@@ -1079,7 +1077,7 @@ B.util = {
     return result;
   },
 
-  each(list, callback = B.noop) {
+  each(list = x`list`, callback = B.noop) {
     for (const item of list) {
       callback(item);
     }
@@ -1088,7 +1086,7 @@ B.util = {
   //
   // Maps over a collection and applies the transformation function. Returns a new array.
   //
-  map(list, mappingFunction = B.noop) {
+  map(list = x`list`, mappingFunction = B.noop) {
     const keys = Object.keys(list);
     const isArray = Array.isArray(list);
     let result = isArray ? [] : {};
@@ -1102,12 +1100,12 @@ B.util = {
     return result;
   },
 
-  createIn(key, list) {
+  createIn(key = x`key`, list = x`list`) {
     const items = B.util.map(list, B.util.esc).join(', ');
     return `${key} IN (${items})`;
   },
 
-  expand(list, key) {
+  expand(list = x`list`, key = x`key`) {
     const result = {};
 
     for (const item of list) {
@@ -1119,7 +1117,7 @@ B.util = {
     return result;
   },
 
-  expandList(list, key) {
+  expandList(list = x`key`, key = x`key`) {
     const result = {};
 
     for (const item of list) {
@@ -1137,7 +1135,7 @@ B.util = {
     return result;
   },
 
-  esc(str) {
+  esc(str = x`str`) {
     return "'" + B.str(str) + "'";
   },
 
@@ -1163,7 +1161,7 @@ B.util = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.migrations = {
-  renameCustomField(formid, table, oldId, newId, dryrun = true) {
+  renameCustomField(formid = x`formid`, table = x`table`, oldId = x`oldId`, newId = x`newId`, dryrun = true) {
     dryrun && B.logger.info('Running renameCustomField in dry run mode.');
 
     const field = B.query.selectOne('Notes.fields', {

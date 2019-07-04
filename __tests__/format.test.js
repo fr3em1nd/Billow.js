@@ -6,7 +6,7 @@ const B = require('../index');
 
 test('B.format.shortDate()', () => {
   expect(B.format.shortDate(0)).toBe('01/01/1970');
-  expect(B.format.shortDate(undefined)).toBe('01/01/1970');
+  expect(B.format.shortDate(undefined)).toBe(B.format.shortDate(B.date.now()));
   expect(B.format.shortDate(null)).toBe('01/01/1970');
   expect(B.format.shortDate(1560854820951)).toBe('18/06/2019');
 });
