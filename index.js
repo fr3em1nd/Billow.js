@@ -350,15 +350,43 @@ B.QueryItem = class QueryItem {
     this._item[key] = value;
   }
 
+  getCustoms() {
+    const cs = this.get('custom');
+    return cs ? JSON.parse(cs) : {};
+  }
+
+  setCustoms(newCustoms = x`newCustoms`) {
+    this.set('custom', JSON.string(newCustoms));
+  }
+
   getCustom(ref = x`ref`) {
-    const custom = JSON.parse(this.get('custom') || '{}');
-    return custom[ref];
+    const customs = this.getCustoms();
+    return customs[ref];
   }
 
   setCustom(ref = x`ref`, value = x`value`) {
-    let custom = JSON.parse(this.get('custom') || '{}');
-    custom[ref] = value;
-    this.set('custom', JSON.stringify(custom));
+    let customs = this.getCustoms();
+    customs[ref] = value;
+    this.setCustoms(customs);
+  }
+
+  getValues() {
+    return JSON.parse(this.get('value') || '{}');
+  }
+
+  setValues(newValues = x`newValues`) {
+    this.set('value', JSON.stringify(newValues));
+  }
+
+  getValue(ref = x`ref`) {
+    var vals = this.getValues();
+    return vals[ref];
+  }
+
+  setValue(ref = x`ref`, value = x`value`) {
+    var vals = this.getValues();
+    vals[ref] = value;
+    this.setValues(vals);
   }
 
   toObject() {
@@ -445,25 +473,6 @@ B.Form = class Form extends B.QueryItem {
   constructor(item) {
     super(item);
     this._table = 'Forms.forms';
-  }
-
-  getValues() {
-    return JSON.parse(this.get('value') || '{}');
-  }
-
-  setValues(newValues) {
-    this.set('value', JSON.stringify(newValues));
-  }
-
-  getValue(ref = x`ref`) {
-    var vals = this.getValues();
-    return vals[ref];
-  }
-
-  setValue(ref = x`ref`, value = x`value`) {
-    var vals = this.getValues();
-    vals[ref] = value;
-    this.setValues(vals);
   }
 
   getSubforms(field = x`field`) {
@@ -679,7 +688,7 @@ B.QueryFactory = class QueryFactory {
     }
   }
 
-  selectIn(field = x`field`, list = x`list`, sort = x`sort`) {
+  selectIn(field = x`field`, list = x`list`, sort = '') {
     const items = B.query.selectIn(this.table, field, list, sort);
     return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
   }
