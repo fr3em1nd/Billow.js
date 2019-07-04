@@ -9,6 +9,9 @@ A collection of utility functions designed to make developing inside Upvise easi
 3. win!
 
 ```javascript
+//
+// Load Billow.js
+//
 (function loadBillowJs() {
   var item = Query.selectId('System.globalsettings', 'billow-software.billow.js');
   if (!item) {
