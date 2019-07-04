@@ -130,3 +130,61 @@ test('B.util.isEmpty()', () => {
   expect(B.util.isEmpty(new Date())).toBe(false);
   expect(B.util.isEmpty(module)).toBe(false);
 });
+
+test('B.util.merge()', () => {
+  expect(
+    B.util.merge(
+      {one: 1},
+      {two: 2},
+      {three: 3},
+      {four: 4},
+      {five: 5},
+    )
+  ).toEqual({
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+  });
+  expect(
+    B.util.merge(
+      {one: 1},
+      {two: 2},
+      {three: 3},
+      {four: 4},
+    )
+  ).toEqual({
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+  });
+  expect(
+    B.util.merge(
+      {one: 1},
+      {two: 2},
+      {three: 3},
+    )
+  ).toEqual({
+    one: 1,
+    two: 2,
+    three: 3,
+  });
+  expect(
+    B.util.merge(
+      {one: 1},
+      {two: 2},
+    )
+  ).toEqual({
+    one: 1,
+    two: 2,
+  });
+  expect(
+    B.util.merge(
+      {one: 1},
+    )
+  ).toEqual({
+    one: 1,
+  });
+});

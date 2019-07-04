@@ -1149,6 +1149,10 @@ B.util = {
     } else {
       return Object.keys(obj).length === 0 && obj.constructor === Object;
     }
+  },
+
+  merge(one = {}, two = {}, three = {}, four = {}, five = {}) {
+    return {...one, ...two, ...three, ...four, ...five};
   }
 };
 
