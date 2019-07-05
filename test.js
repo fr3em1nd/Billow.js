@@ -32,6 +32,10 @@ function assert(condition, expectation) {
 function runTests() {
   assert(B.query.select('Forms.forms').length > 1, true);
   assert(B.query.select('non-existant-table').length, 0);
+
+  var jobgroup = B.JobGroups.selectId('08CC1CCBA92457A36686003939776E');
+  var jobs = jobgroup.getLinkedJobs();
+  assert(jobs.count() > 0, true);
 };
 
 //

@@ -219,6 +219,10 @@ B.ResultSet = class ResultSet {
     }
   }
 
+  count() {
+    return this.items.length;
+  }
+
   each(callback = x`callback`) {
     B.util.each(this.items, callback);
   }
@@ -395,6 +399,48 @@ B.QueryItem = class QueryItem {
     var vals = this.getValues();
     vals[ref] = value;
     this.setValues(vals);
+  }
+
+  getLinkedJobs() {
+    let linkedAttr = '';
+
+    switch (this._table) {
+      case 'Projects.projects': {
+        linkedAttr = 'projectid';
+        break;
+      } case 'Assets.sites': {
+        linkedAttr = 'siteid';
+        break;
+      } case 'Sales.quotes': {
+        const status = this.get_int('status');
+        if (status === 1) { // invoice
+          linkedAttr = 'invoiceid';
+        } else if (status === 0) { // quote
+          linkedAttr = 'quoteid';
+        }
+        break;
+      } case 'Contacts.company': {
+        linkedAttr = 'companyid';
+        break;
+      } case 'Contacts.contacts': {
+        linkedAttr = 'contactid';
+        break;
+      } case 'Tools.tools': {
+        linkedAttr = 'toolid';
+        break;
+      } case 'Jobs.groups': {
+        linkedAttr = 'groupid';
+      }
+    }
+
+    if (!linkedAttr) {
+      B.logger.error('getLinkedJobs() does not support the table ' + this._table);
+      return [];
+    }
+
+    return B.Jobs.select({
+      [linkedAttr]: this.get('id'),
+    });
   }
 
   toObject() {
