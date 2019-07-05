@@ -4,13 +4,21 @@
 
 var B = {};
 
-B.VERSION = '1.3.0';
+B.VERSION = '1.3.1';
 
 const x = (methodName) => {
   //
   // TODO - is it possible to make this into anything more intersting/useful?
   //
   throw new Error('Missing required paramater: ' + methodName);
+};
+
+B.isUpviseWeb = () => {
+  return typeof WEB === 'function' ? WEB() : false;
+};
+
+B.isUpviseMobile = () => {
+  return typeof WEB === 'function' ? !WEB() : false;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,24 +28,20 @@ const x = (methodName) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.logger = {
-  _shouldLog() {
-    return typeof WEB === 'function' ? WEB() : true;
-  },
-
   error(...message) {
-    this._shouldLog() && console.error(...message);
+    B.isUpviseWeb() && console.error(...message);
   },
 
   warn(...message) {
-    this._shouldLog() && console.warn(...message);
+    B.isUpviseWeb() && console.warn(...message);
   },
 
   log(...message) {
-    this._shouldLog() && console.log(...message);
+    B.isUpviseWeb() && console.log(...message);
   },
 
   info(...message) {
-    this._shouldLog() && console.info(...message);
+    B.isUpviseWeb() && console.info(...message);
   },
 };
 
@@ -120,6 +124,10 @@ B.query = {
   // Return an error if any of the given keys are not defined in the db schema
   //
   _checkKeys(table = x`table`, keys = x`keys`) {
+    if (!B.isUpviseWeb()) {
+      return true;
+    }
+
     const tableKeys = B.query._getTableKeys(table);
 
     for (const key of keys) {
@@ -133,7 +141,7 @@ B.query = {
   },
 
   _checkTable(table = x`table`) {
-    return !!Cache.channels[Cache._makeLegacyTable(table)];
+    return B.isUpviseWeb() ? !!Cache.channels[Cache._makeLegacyTable(table)] : true;
   },
 
   insert(table = x`table`, values = x`values`) {
