@@ -231,6 +231,61 @@ B.ResultSet = class ResultSet {
     return B.util.map(this.items, callback);
   }
 
+  pluck(key = x`key`) {
+    let list = [];
+
+    this.each((item) => {
+      if (item.get(key)) {
+        list.push(item.get(key));
+      } else {
+        B.logger.warn('Given key "' + key + '" does not exist in the object');
+      }
+    });
+
+    return list;
+  }
+
+  keyBy(key = x`key`) {
+    let result = {};
+
+    this.each((item) => {
+      const k = item.get(key);
+
+      if (k) {
+        result[k] = item;
+      } else {
+        B.logger.warn('Given key "' + key + '" does not exist in the object');
+      }
+    });
+
+    return result;
+  }
+
+  listBy(key = x`key`) {
+    let result = {};
+
+    this.each((item) => {
+      const k = item.get(key);
+
+      if (!k) {
+        B.logger.warn('Given key "' + key + '" does not exist in the object');
+        return;
+      }
+
+      if (result[k]) {
+        result[k].push(item);
+      } else {
+        result[k] = [item];
+      }
+    });
+
+    return result;
+  }
+
+  isEmpty() {
+    return !!B.util.isEmpty(this.items);
+  }
+
   toObject() {
     return this.map((queryItem) => queryItem.toObject());
   }

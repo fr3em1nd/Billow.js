@@ -36,6 +36,11 @@ function runTests() {
   var jobgroup = B.JobGroups.selectId('08CC1CCBA92457A36686003939776E');
   var jobs = jobgroup.getLinkedJobs();
   assert(jobs.count() > 0, true);
+
+  console.log(jobs.keyBy('id'));
+  console.log(jobs.listBy('groupid'));
+  console.log(jobs.isEmpty());
+  console.log(jobs.pluck('name'));
 };
 
 //
