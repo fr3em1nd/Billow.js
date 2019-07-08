@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.0';
+B.VERSION = '1.4.1';
 
 const x = (methodName) => {
   //
@@ -1196,8 +1196,13 @@ B.util = {
   },
 
   each(list = x`list`, callback = B.noop) {
-    for (const item of list) {
-      callback(item);
+    const keys = Object.keys(list);
+    const isArray = Array.isArray(list);
+
+    for (const key of keys) {
+      const value = list[key];
+      const index = isArray ? B.int(key) : key;
+      callback(value, index);
     }
   },
 

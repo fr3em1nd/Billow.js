@@ -48,15 +48,41 @@ test('B.util.ensureDateObj()', () => {
 });
 
 test('B.util.each()', () => {
-  const times = 500;
-  const arr = new Array(times);
-  let count = 0;
+  const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  let count1 = 0;
+  let count2 = 0;
 
-  B.util.each(arr, () => {
-    count += 1;
+  B.util.each(array, (item, i) => {
+    count1 += item;
+    count2 += i;
   });
 
-  expect(count).toEqual(times);
+  expect(count1).toEqual(55);
+  expect(count2).toEqual(55);
+
+  const obj = {
+    zero: 0,
+    ten: 10,
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+    onehundred: 100,
+  };
+  let count3 = 0;
+  let count4 = [];
+
+  B.util.each(obj, (item, i) => {
+    count3 += item;
+    count4.push(i);
+  });
+
+  expect(count3).toEqual(550);
+  expect(count4).toEqual(Object.keys(obj));
 });
 
 test('B.util.map()', () => {

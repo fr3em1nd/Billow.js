@@ -29,6 +29,9 @@
   },
   "jest": {
     "preset": "jest-puppeteer",
+    "testPathIgnorePatterns": [
+      "<rootDir>/test.js"
+    ],
     "setupFilesAfterEnv": [
       "expect-puppeteer"
     ]
