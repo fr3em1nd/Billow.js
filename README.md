@@ -12,16 +12,23 @@ A collection of utility functions designed to make developing inside Upvise easi
 //
 // Load Billow.js
 //
-(function loadBillowJs() {
+function loadBillowJs() {
   var item = Query.selectId('System.globalsettings', 'billow-software.billow.js');
-  if (!item) {
-    console.error('Billow.js not deployed to this database');
-    return;
+  if (item) {
+    var code = item.value;
+    if (typeof window === 'undefined') {
+      return new Function(code + ';return B;')();
+    } else if (window.B && window.B.VERSION === item.name) {
+      return window.B;
+    } else {
+      new Function(code)();
+      return window.B;
+    }
+  } else {
+    throw new Error('Critical failure: B.js is not deployed to this database');
   }
-  if ((window.B && window.B.VERSION !== item.name) || !window.B) {
-    eval(item.value);
-  }
-})();
+}
+var B = loadBillowJs();
 ```
 
 # Goals
