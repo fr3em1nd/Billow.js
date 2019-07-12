@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.3';
+B.VERSION = '1.4.4';
 
 const x = (methodName) => {
   //
@@ -349,11 +349,19 @@ B.QueryItem = class QueryItem {
   }
 
   save() {
-    B.logger.log('Saving item to db', this._table, this._item);
+    B.logger.log('Saving item: ', this._table, this._item);
+    var item = B.util.quickClone(this._item);
+    var id = item.id;
+    delete item.id;
+    B.query.update(this._table, id, item);
   }
 
   get(key = x`key`) { // TODO - error handling and custom fields and stuff
     return this._item[key];
+  }
+
+  set(key = x`key`, value = x`value`) { // TODO - error handling and custom fields
+    this._item[key] = value;
   }
 
   get_id2name(key = x`key`, table = x`table`) {
@@ -426,10 +434,6 @@ B.QueryItem = class QueryItem {
 
   getUpviseLink(altName = '') {
     return B.format.upviseLink(this._table, this.get('id'), altName);
-  }
-
-  set(key = x`key`, value = x`value`) { // TODO - error handling and custom fields
-    this._item[key] = value;
   }
 
   getCustoms() {
@@ -1293,6 +1297,10 @@ B.util = {
 
   merge(one = {}, two = {}, three = {}, four = {}, five = {}) {
     return {...one, ...two, ...three, ...four, ...five};
+  },
+
+  quickClone(obj = x`obj`) {
+    return JSON.parse(JSON.stringify(obj));
   }
 };
 
