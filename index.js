@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.1';
+B.VERSION = '1.4.2';
 
 const x = (methodName) => {
   //
@@ -255,6 +255,21 @@ B.ResultSet = class ResultSet {
         result[k] = item;
       } else {
         B.logger.warn('Given key "' + key + '" does not exist in the object');
+      }
+    });
+
+    return result;
+  }
+
+  pairBy(keyKey = x`keyKey`, valueKey = x`valueKey`) {
+    let result = {};
+
+    this.each((item) => {
+      const k = item.get(keyKey);
+      const v = item.get(valueKey);
+
+      if (k && v) {
+        result[k] = v;
       }
     });
 
