@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.4';
+B.VERSION = '1.4.5';
 
 const x = (methodName) => {
   //
@@ -337,6 +337,7 @@ B.QueryItem = class QueryItem {
   constructor(item = x`item`) {
     this._table = ''; // Subclasses should override this!
     this._item = item;
+    this._keys = Object.keys(item);
 
     //
     // TODO - we need to not do this anymore!
@@ -356,11 +357,47 @@ B.QueryItem = class QueryItem {
     B.query.update(this._table, id, item);
   }
 
-  get(key = x`key`) { // TODO - error handling and custom fields and stuff
+  get(key = x`key`) {
+    if (key.includes('.')) {
+      var splitted = key.split('.');
+      var a = splitted[0];
+      var b = splitted[1];
+
+      if (a === 'value' || a === 'custom') {
+        var obj = JSON.parse(this._item[a] || '{}');
+        return obj[b];
+      } else {
+        return B.logger.error('.get() dot notation can only be used to access `value` and `custom`');
+      }
+    }
+
+    if (!this._keys.includes(key)) {
+      return B.logger.error('Item of schema ' + this._table + ' does not include key: ' + key);
+    }
+
     return this._item[key];
   }
 
-  set(key = x`key`, value = x`value`) { // TODO - error handling and custom fields
+  set(key = x`key`, value = x`value`) {
+    if (key.includes('.')) {
+      var splitted = key.split('.');
+      var a = splitted[0];
+      var b = splitted[1];
+
+      if (a === 'value' || a === 'custom') {
+        var obj = JSON.parse(this._item[a] || '{}');
+        obj[b] = value;
+        this._item[a] = JSON.stringify(obj);
+        return;
+      } else {
+        return B.logger.error('.set() dot notation can only be used to access `value` and `custom`');
+      }
+    }
+
+    if (!this._keys.includes(key)) {
+      return B.logger.error('Item of schema "' + this._table + '" does not include key: ' + key);
+    }
+
     this._item[key] = value;
   }
 
