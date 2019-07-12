@@ -502,14 +502,14 @@ B.QueryItem = class QueryItem {
   }
 
   getValue(ref = x`ref`) {
-    var vals = this.getValues();
-    return vals[ref];
+    var values = this.getValues();
+    return values[ref];
   }
 
   setValue(ref = x`ref`, value = x`value`) {
-    var vals = this.getValues();
-    vals[ref] = value;
-    this.setValues(vals);
+    var values = this.getValues();
+    values[ref] = value;
+    this.setValues(values);
   }
 
   getLinkedJobs() {
@@ -1011,7 +1011,7 @@ B.string = {
     return str;
   },
 
-  pluralise(singularForm = x`singulatForm`, pluralForm = x`pluralForm`, count = x`count`, include = false) {
+  pluralise(singularForm = x`singularForm`, pluralForm = x`pluralForm`, count = x`count`, include = false) {
     let form = '';
 
     if (count === 1) {
