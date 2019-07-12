@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.2';
+B.VERSION = '1.4.3';
 
 const x = (methodName) => {
   //
@@ -932,6 +932,10 @@ B.str = (item) => {
 };
 
 B.arr = (item) => {
+  if (typeof item === 'undefined' || item == null) {
+    return [];
+  }
+
   if (Array.isArray(item)) {
     return item;
   } else {

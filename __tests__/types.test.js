@@ -55,6 +55,9 @@ test('B.arr()', () => {
   ];
   expect(B.arr(functionList)).toEqual(functionList);
   expect(B.arr({})).toEqual([{}]);
+  expect(B.arr(undefined)).toEqual([]);
+  expect(B.arr(null)).toEqual([]);
+  expect(B.arr()).toEqual([]);
 });
 
 test('B.str()', () => {
