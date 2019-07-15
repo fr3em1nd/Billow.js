@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.4.5';
+B.VERSION = '1.5.0';
 
 const x = (methodName) => {
   //
