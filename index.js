@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.5.0';
+B.VERSION = '1.5.1';
 
 const x = (methodName) => {
   //
@@ -555,11 +555,11 @@ B.QueryItem = class QueryItem {
   }
 
   toObject() {
-    return this._item;
+    return B.util.quickClone(this._item);
   }
 
   toJSON() {
-    return JSON.stringify(this.toObject());
+    return JSON.stringify(this._item);
   }
 
   //
