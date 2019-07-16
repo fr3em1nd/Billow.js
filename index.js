@@ -357,7 +357,7 @@ B.QueryItem = class QueryItem {
     B.query.update(this._table, id, item);
   }
 
-  get(key = x`key`) {
+  get(key = x`key`, runOnGetHandler = true) {
     if (key.includes('.')) {
       var splitted = key.split('.');
       var a = splitted[0];
@@ -375,7 +375,19 @@ B.QueryItem = class QueryItem {
       return B.logger.error('Item of schema ' + this._table + ' does not include key: ' + key);
     }
 
+    //
+    // Run the relevant onGet() function
+    //
+    if (typeof this['onGet_' + key] === 'function' && !!runOnGetHandler) {
+      const func = this['onGet_' + key];
+      return func.call(this, this._item[key]);
+    }
+
     return this._item[key];
+  }
+
+  get_raw(key = x`key`) {
+    return this.get(key, false);
   }
 
   set(key = x`key`, value = x`value`) {
@@ -687,6 +699,29 @@ B.Job = class Job extends B.QueryItem {
   constructor(item) {
     super(item);
     this._table = 'Jobs.jobs';
+  }
+
+  onGet_status(status) {
+    switch (B.int(status)) {
+      case 0:
+        return 'Open';
+      case 2:
+        return 'High Priority';
+      case 3:
+        return 'Checked In';
+      case 4:
+        return 'Completed';
+      case 5:
+        return 'Paused';
+      case 6:
+        return 'Driving';
+      case 7:
+        return 'Driving Paused';
+      case 8:
+        return 'Driving Completed';
+      default:
+        return '';
+    }
   }
 };
 
