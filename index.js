@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.0';
+B.VERSION = '1.6.1';
 
 const x = (methodName) => {
   //
@@ -97,7 +97,17 @@ B.query = {
       return [];
     }
 
-    return Query.selectId(table, id || '');
+    const res = Query.selectId(table, id || '');
+
+    //
+    // Thierry's selectId returns null instead of undefined, causing other bugs
+    // We need to stop the madness
+    //
+    if (B.util.isEmpty(res)) {
+      return undefined;
+    }
+
+    return res;
   },
 
   selectIn(table = x`table`, field = x`field`, list = x`list`, sort = '') {
