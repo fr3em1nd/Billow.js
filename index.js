@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.1';
+B.VERSION = '1.6.2';
 
 const x = (methodName) => {
   //
@@ -336,9 +336,16 @@ B.QueryItem = class QueryItem {
   save() {
     B.logger.log('Saving item: ', this._table, this._item);
     var item = B.util.quickClone(this._item);
-    var id = item.id;
-    delete item.id;
-    B.query.update(this._table, id, item);
+
+    if (item.id) {
+      var id = item.id;
+      delete item.id;
+      B.query.update(this._table, id, item);
+    } else {
+      var id = B.query.insert(this._table, item);
+      this.set('id', id);
+      return id;
+    }
   }
 
   get(key = x`key`, runOnGetHandler = true) {
