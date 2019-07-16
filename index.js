@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.5.1';
+B.VERSION = '1.6.0';
 
 const x = (methodName) => {
   //
@@ -310,23 +310,6 @@ B.ResultSet = class ResultSet {
   }
 };
 
-//
-// TODO - remove this in a future release of Billow.js
-//
-B.defineQueryItemProperty = function (obj, key) {
-  Object.defineProperty(obj, key, {
-    get: function () {
-      B.logger.warn('Using the query item to get values directly is depreciated. Please use .get() instead');
-      return this._item[key];
-    },
-    set: function (newValue) {
-      B.logger.warn('Using the query item to set values directly is depreciated. Please use .set() instead');
-      this._item[key] = newValue;
-      return newValue;
-    }
-  });
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // QUERY ITEM
@@ -338,15 +321,6 @@ B.QueryItem = class QueryItem {
     this._table = ''; // Subclasses should override this!
     this._item = item;
     this._keys = Object.keys(item);
-
-    //
-    // TODO - we need to not do this anymore!
-    //
-    const keys = Object.keys(item);
-    for (const key of keys) {
-      this[key] = item[key];
-      B.defineQueryItemProperty(this, key);
-    }
   }
 
   save() {
