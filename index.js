@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.5.1';
+B.VERSION = '1.6.1';
 
 const x = (methodName) => {
   //
@@ -97,7 +97,17 @@ B.query = {
       return [];
     }
 
-    return Query.selectId(table, id || '');
+    const res = Query.selectId(table, id || '');
+
+    //
+    // Thierry's selectId returns null instead of undefined, causing other bugs
+    // We need to stop the madness
+    //
+    if (B.util.isEmpty(res)) {
+      return undefined;
+    }
+
+    return res;
   },
 
   selectIn(table = x`table`, field = x`field`, list = x`list`, sort = '') {
@@ -310,23 +320,6 @@ B.ResultSet = class ResultSet {
   }
 };
 
-//
-// TODO - remove this in a future release of Billow.js
-//
-B.defineQueryItemProperty = function (obj, key) {
-  Object.defineProperty(obj, key, {
-    get: function () {
-      B.logger.warn('Using the query item to get values directly is depreciated. Please use .get() instead');
-      return this._item[key];
-    },
-    set: function (newValue) {
-      B.logger.warn('Using the query item to set values directly is depreciated. Please use .set() instead');
-      this._item[key] = newValue;
-      return newValue;
-    }
-  });
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // QUERY ITEM
@@ -338,15 +331,6 @@ B.QueryItem = class QueryItem {
     this._table = ''; // Subclasses should override this!
     this._item = item;
     this._keys = Object.keys(item);
-
-    //
-    // TODO - we need to not do this anymore!
-    //
-    const keys = Object.keys(item);
-    for (const key of keys) {
-      this[key] = item[key];
-      B.defineQueryItemProperty(this, key);
-    }
   }
 
   save() {
@@ -357,7 +341,7 @@ B.QueryItem = class QueryItem {
     B.query.update(this._table, id, item);
   }
 
-  get(key = x`key`) {
+  get(key = x`key`, runOnGetHandler = true) {
     if (key.includes('.')) {
       var splitted = key.split('.');
       var a = splitted[0];
@@ -375,7 +359,19 @@ B.QueryItem = class QueryItem {
       return B.logger.error('Item of schema ' + this._table + ' does not include key: ' + key);
     }
 
+    //
+    // Run the relevant onGet() function
+    //
+    if (typeof this['onGet_' + key] === 'function' && !!runOnGetHandler) {
+      const func = this['onGet_' + key];
+      return func.call(this, this._item[key]);
+    }
+
     return this._item[key];
+  }
+
+  get_raw(key = x`key`) {
+    return this.get(key, false);
   }
 
   set(key = x`key`, value = x`value`) {
@@ -554,6 +550,23 @@ B.QueryItem = class QueryItem {
     });
   }
 
+  getLinkedForms() {B.logger.error('Not implemented - sorry!')}
+  getLinkedProjects() {B.logger.error('Not implemented - sorry!')}
+  getLinkedQuotes() {B.logger.error('Not implemented - sorry!')}
+  getLinkedDeals() {B.logger.error('Not implemented - sorry!')}
+  getLinkedContacts() {B.logger.error('Not implemented - sorry!')}
+  getLinkedCompanies() {B.logger.error('Not implemented - sorry!')}
+  getLinkedEvents() {B.logger.error('Not implemented - sorry!')}
+  getLinkedEquipment() {B.logger.error('Not implemented - sorry!')}
+  getLinkedFiles() {B.logger.error('Not implemented - sorry!')}
+  getLinkedTasks() {B.logger.error('Not implemented - sorry!')}
+  getLinkedNotes() {B.logger.error('Not implemented - sorry!')}
+  getLinkedProducts() {B.logger.error('Not implemented - sorry!')}
+  getLinkedServices() {B.logger.error('Not implemented - sorry!')}
+  getLinkedAssets() {B.logger.error('Not implemented - sorry!')}
+  getLinkedPunchItems() {B.logger.error('Not implemented - sorry!')}
+  getLinkedTimeEntries() {B.logger.error('Not implemented - sorry!')}
+
   toObject() {
     return B.util.quickClone(this._item);
   }
@@ -650,7 +663,6 @@ B.Form = class Form extends B.QueryItem {
   }
 };
 
-
 B.FormTemplate = class FormTemplate extends B.QueryItem {
   constructor(item) {
     super(item);
@@ -687,6 +699,34 @@ B.Job = class Job extends B.QueryItem {
   constructor(item) {
     super(item);
     this._table = 'Jobs.jobs';
+  }
+
+  onGet_status(status) {
+    switch (B.int(status)) {
+      case 0:
+        return 'Open';
+      case 2:
+        return 'High Priority';
+      case 3:
+        return 'Checked In';
+      case 4:
+        return 'Completed';
+      case 5:
+        return 'Paused';
+      case 6:
+        return 'Driving';
+      case 7:
+        return 'Driving Paused';
+      case 8:
+        return 'Driving Completed';
+      default:
+        return '';
+    }
+  }
+
+  isOpen() {
+    const status = B.int(this.get_raw('status'));
+    return status !== 4;
   }
 };
 
