@@ -662,7 +662,6 @@ B.Form = class Form extends B.QueryItem {
   }
 };
 
-
 B.FormTemplate = class FormTemplate extends B.QueryItem {
   constructor(item) {
     super(item);
@@ -722,6 +721,11 @@ B.Job = class Job extends B.QueryItem {
       default:
         return '';
     }
+  }
+
+  isOpen() {
+    const status = B.int(this.get_raw('status'));
+    return status !== 4;
   }
 };
 
