@@ -925,7 +925,7 @@ B.QueryFactory = class QueryFactory {
 };
 
 B.Assets = new B.QueryFactory('Assets.assets', B.Asset);
-B.AssetLocations = B.QueryFactory('Assets.locations', B.AssetLocation);
+B.AssetLocations = new B.QueryFactory('Assets.locations', B.AssetLocation);
 B.CatalogProducts = new B.QueryFactory('Sales.products', B.CatalogProduct);
 B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
 B.ContactGroups = new B.QueryFactory('Contacts.groups', B.ContactGroup);
