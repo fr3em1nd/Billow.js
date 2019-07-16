@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.2';
+B.VERSION = '1.6.3';
 
 const x = (methodName) => {
   //
@@ -601,6 +601,24 @@ B.QueryItem = class QueryItem {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //
+// ASSETS
+//
+
+B.Asset = class Asset extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Assets.assets';
+  }
+}
+
+B.AssetLocation = class Asset extends B.QueryItem {
+  constructor(item) {
+    super(item);
+    this._table = 'Assets.locations';
+  }
+}
+
+//
 // CONTACTS
 //
 
@@ -906,6 +924,8 @@ B.QueryFactory = class QueryFactory {
   }
 };
 
+B.Assets = new B.QueryFactory('Assets.assets', B.Asset);
+B.AssetLocations = B.QueryFactory('Assets.locations', B.AssetLocation);
 B.CatalogProducts = new B.QueryFactory('Sales.products', B.CatalogProduct);
 B.Companies = new B.QueryFactory('Contacts.companies', B.Company);
 B.ContactGroups = new B.QueryFactory('Contacts.groups', B.ContactGroup);
