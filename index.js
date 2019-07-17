@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.4';
+B.VERSION = '1.6.5';
 
 const x = (methodName) => {
   //
@@ -119,25 +119,55 @@ B.query = {
   // Get a list of the keys found in a table
   //
   _getTableKeys(tableName = x`tableName`) {
-    const tableId = Cache._makeLegacyTable(tableName);
-    const channel = Cache.channels[tableId];
+    //
+    // On Upvise web we can peek in on the database implementation to get the keys of a table
+    //
+    if (B.isUpviseWeb()) {
+      const tableId = Cache._makeLegacyTable(tableName);
+      const channel = Cache.channels[tableId];
 
-    if (channel) {
-      return Object.keys(channel.columns);
-    } else {
-      B.logger.error('Cannot find table schema for given table name:', tableName);
-      return [];
+      if (channel) {
+        return Object.keys(channel.columns);
+      } else {
+        B.logger.error('Table does not exist:', tableName);
+        return [];
+      }
+    } else if (B.isUpviseMobile()) {
+      const validTable = B.query._checkTable(tableName);
+
+      if (!validTable) {
+        B.logger.error('Table "' + tableName + '" does not exist');
+        return [];
+      }
+
+      //
+      // The Upvise mobile client doesn't have a "Cache" class due to the fact that it implements the
+      // database interface with native code that we can't access. So to get the valid table keys
+      // on mobile we have to use an existing db item or create one ourselves.
+      //
+      // Note: we need to use the vanilla "Query" to avoid recursion
+      //
+      const existingItem = Query.select(tableName, '*', '')[0];
+
+      if (existingItem) {
+        return Object.keys(existingItem);
+      } else {
+        const id = Query.insert(tableName, {});
+        const item = Query.selectId(tableName, id);
+        const keys = Object.keys(item);
+        Query.deleteId(tableName, id);
+        return keys;
+      }
     }
+
+    B.logger.error('Cannot get table keys');
+    return [];
   },
 
   //
   // Return an error if any of the given keys are not defined in the db schema
   //
   _checkKeys(table = x`table`, keys = x`keys`) {
-    if (!B.isUpviseWeb()) {
-      return true;
-    }
-
     const tableKeys = B.query._getTableKeys(table);
 
     for (const key of keys) {
@@ -151,7 +181,34 @@ B.query = {
   },
 
   _checkTable(table = x`table`) {
-    return B.isUpviseWeb() ? !!Cache.channels[Cache._makeLegacyTable(table)] : true;
+    if (B.isUpviseWeb()) {
+      return !!Cache.channels[Cache._makeLegacyTable(table)];
+    } else if (B.isUpviseMobile()) {
+      //
+      // You ready to see something completely bullshit?
+      //
+      // Okay here we go...
+      //
+      // On Upvise mobile, none of the Query functions throw errors. Ever. So the only way for
+      // us to determine if a TABLE exists, is to try and create an item & query it back.
+      //
+      const id = Query.insert(table, {});
+      const item = Query.selectId(table, id);
+
+      if (B.util.isEmpty(item)) {
+        return false;
+      } else {
+        Query.deleteId(table, id);
+        return true;
+      }
+
+      //
+      // TODO - there are two ways we can make this better:
+      // - 1. Hardcode a list of tables that will always be valid (to investigate here: do the tables
+      //      exist even if you don't have access to the relevant app?)
+      // - 2. Create a list of tables that have been checked/approved earlier, reuse the results
+      //
+    }
   },
 
   insert(table = x`table`, values = x`values`) {
@@ -209,6 +266,17 @@ B.query = {
 
     return buffer.join('|');
   },
+
+  deleteId(table = x`table`, id = x`id`) {
+    const validTable = B.query._checkTable(table);
+
+    if (!validTable) {
+      B.logger.error('Table "' + table + '" does not exist');
+      return;
+    }
+
+    Query.deleteId(table, id);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

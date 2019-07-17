@@ -12,6 +12,7 @@ function loadBillowJs() {
     if (typeof window === 'undefined') {
       return new Function(code + ';return B;')();
     } else if (window.B && window.B.VERSION === item.name) {
+      new Function(code)();
       return window.B;
     } else {
       new Function(code)();
@@ -46,14 +47,29 @@ function runTests() {
   var jobs = jobgroup.getLinkedJobs();
   assert(jobs.count() > 0, true);
 
-  console.log(jobs.keyBy('id'));
-  console.log(jobs.listBy('groupid'));
-  console.log(jobs.isEmpty());
-  console.log(jobs.pluck('name'));
+  assert(jobs.isEmpty(), false);
+  assert(typeof jobs.keyBy('id'), 'object');
+  assert(typeof jobs.listBy('groupid'), 'object');
+  assert(typeof jobs.pluck('name'), 'object');
+
+  assert(B.query._checkTable('Forms.forms'), true);
+  assert(B.query._checkTable('Jobs.jobs'), true);
+  assert(B.query._checkTable('Sales.quotes'), true);
+  assert(B.query._checkTable('fuckoff'), false);
+  assert(B.query._checkTable('sex'), false);
+
+  assert(B.query._getTableKeys('Forms.forms').length > 0, true);
+  assert(B.query._getTableKeys('Notes.notes').length > 0, true);
+  assert(B.query._getTableKeys('non-existant-table').length === 0, true);
 };
 
 //
 // Run the tests
 //
-runTests();
-App.confirm('Tests have passed.');
+try {
+  runTests();
+  App.confirm('Tests have passed.');
+} catch (err) {
+  console.log(err);
+  console.log(err.stack);
+}
