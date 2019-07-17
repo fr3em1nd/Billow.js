@@ -1,7 +1,7 @@
 {
   "name": "billow-js",
   "private": true,
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "A collection of utility functions designed to make developing inside Upvise easier.",
   "main": "index.js",
   "scripts": {
