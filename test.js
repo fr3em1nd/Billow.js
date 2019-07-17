@@ -61,6 +61,31 @@ function runTests() {
   assert(B.query._getTableKeys('Forms.forms').length > 0, true);
   assert(B.query._getTableKeys('Notes.notes').length > 0, true);
   assert(B.query._getTableKeys('non-existant-table').length === 0, true);
+
+  var n = new B.Note();
+  assert(n._keys.length > 0, true);
+
+  //
+  // We have to use includes() because the Notes.notes table might change in the future.
+  // The below is all the fields as at 17th July 2019
+  //
+  assert(n._keys.includes('assetid'), true);
+  assert(n._keys.includes('companyid'), true);
+  assert(n._keys.includes('contactid'), true);
+  assert(n._keys.includes('creationdate'), true);
+  assert(n._keys.includes('creator'), true);
+  assert(n._keys.includes('description'), true);
+  assert(n._keys.includes('duration'), true);
+  assert(n._keys.includes('eventid'), true);
+  assert(n._keys.includes('geo'), true);
+  assert(n._keys.includes('id'), true);
+  assert(n._keys.includes('jobid'), true);
+  assert(n._keys.includes('notebookid'), true);
+  assert(n._keys.includes('opportunityid'), true);
+  assert(n._keys.includes('planid'), true);
+  assert(n._keys.includes('projectid'), true);
+  assert(n._keys.includes('punchid'), true);
+  assert(n._keys.includes('quoteid'), true);
 };
 
 //
