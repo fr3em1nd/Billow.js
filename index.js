@@ -894,19 +894,19 @@ B.QuoteProduct = class QuoteProduct extends B.QueryItem {
 B.QueryFactory = class QueryFactory {
   constructor(table = x`table`, carrier = x`carrier`) {
     this.table = table;
-    this.carrier = carrier;
+    this.Carrier = carrier;
   }
 
   select(query = '', sort = '') {
     const items = B.query.select(this.table, query, sort);
-    return new B.ResultSet(this.table, items, this.carrier, query, sort);
+    return new B.ResultSet(this.table, items, this.Carrier, query, sort);
   }
 
   selectOne(query = '', sort = '') {
     const item = B.query.select(this.table, query, sort)[0];
 
     if (item) {
-      return new this.carrier(item);
+      return new this.Carrier(item);
     }
   }
 
@@ -914,13 +914,13 @@ B.QueryFactory = class QueryFactory {
     const item = B.query.selectId(this.table, id);
 
     if (item) {
-      return new this.carrier(item);
+      return new this.Carrier(item);
     }
   }
 
   selectIn(field = x`field`, list = x`list`, sort = '') {
     const items = B.query.selectIn(this.table, field, list, sort);
-    return new B.ResultSet(this.table, items, this.carrier, B.util.createIn(field, list), sort);
+    return new B.ResultSet(this.table, items, this.Carrier, B.util.createIn(field, list), sort);
   }
 };
 
