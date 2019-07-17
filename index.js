@@ -327,10 +327,10 @@ B.ResultSet = class ResultSet {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 B.QueryItem = class QueryItem {
-  constructor(item = x`item`) {
-    this._table = ''; // Subclasses should override this!
+  constructor(table = x`table`, item = {}) {
+    this._table = table;
     this._item = item;
-    this._keys = Object.keys(item);
+    this._keys = B.query._getTableKeys(table);
   }
 
   save() {
@@ -606,15 +606,13 @@ B.QueryItem = class QueryItem {
 
 B.Asset = class Asset extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Assets.assets';
+    super('Assets.assets', item);
   }
 }
 
 B.AssetLocation = class Asset extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Assets.locations';
+    super('Assets.locations', item);
   }
 }
 
@@ -624,36 +622,31 @@ B.AssetLocation = class Asset extends B.QueryItem {
 
 B.Contact = class Contact extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Contacts.contacts';
+    super('Contacts.contacts', item);
   }
 };
 
 B.Company = class Company extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Contacts.companies';
+    super('Contacts.companies', item);
   }
 };
 
 B.ContactGroup = class ContactGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Contacts.groups';
+    super('Contacts.groups', item);
   }
 };
 
 B.ContactRegion = class ContactRegion extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Contacts.regions';
+    super('Contacts.regions', item);
   }
 };
 
 B.ContactMailTemplate = class ContactMailTemplate extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Contacts.mailtemplates';
+    super('Contacts.mailtemplates', item);
   }
 };
 
@@ -663,8 +656,7 @@ B.ContactMailTemplate = class ContactMailTemplate extends B.QueryItem {
 
 B.CustomField = class CustomField extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Notes.fields';
+    super('Notes.fields', item);
   }
 };
 
@@ -674,8 +666,7 @@ B.CustomField = class CustomField extends B.QueryItem {
 
 B.Form = class Form extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Forms.forms';
+    super('Forms.forms', item);
   }
 
   getSubforms(field = x`field`) {
@@ -690,29 +681,25 @@ B.Form = class Form extends B.QueryItem {
 
 B.FormTemplate = class FormTemplate extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Forms.templates';
+    super('Forms.templates', item);
   }
 };
 
 B.FormField = class FormField extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Forms.fields';
+    super('Forms.fields', item);
   }
 };
 
 B.FormGroup = class FormGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Forms.groups';
+    super('Forms.groups', item);
   }
 };
 
 B.FormState = class FormState extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Forms.states';
+    super('Forms.states', item);
   }
 };
 
@@ -722,8 +709,7 @@ B.FormState = class FormState extends B.QueryItem {
 
 B.Job = class Job extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Jobs.jobs';
+    super('Jobs.jobs', item);
   }
 
   onGet_status(status) {
@@ -757,17 +743,31 @@ B.Job = class Job extends B.QueryItem {
 
 B.JobGroup = class JobGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Jobs.groups';
+    super('Jobs.groups', item);
   }
 };
 
 B.JobProduct = class JobGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Jobs.jobproducts';
+    super('Jobs.jobproducts', item);
   }
 };
+
+//
+// NOTES
+//
+
+B.Note = class Note extends B.QueryItem {
+  constructor(item) {
+    super('Notes.notes', item);
+  }
+}
+
+B.Notebook = class Notebook extends B.QueryItem {
+  constructor(item) {
+    super('Notes.notebooks', item);
+  }
+}
 
 //
 // PROJECTS
@@ -775,78 +775,67 @@ B.JobProduct = class JobGroup extends B.QueryItem {
 
 B.Project = class Project extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.projects';
+    super('Projects.projects', item);
   }
 };
 
 B.ProjectAssetGroup = class ProjectAssetGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.assetgroups';
+    super('Projects.assetgroups', item);
   }
 };
 
 B.ProjectGroup = class ProjectGroup extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.groups';
+    super('Projects.groups', item);
   }
 };
 
 B.ProjectMilestone = class ProjectMilestone extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.milestones';
+    super('Projects.milestones', item);
   }
 };
 
 B.ProjectMilestoneTemplate = class ProjectMilestoneTemplate extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.milestonetemplates';
+    super('Projects.milestonetemplates', item);
   }
 };
 
 B.ProjectActivity = class ProjectActivity extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.projectactivities';
+    super('Projects.projectactivities', item);
   }
 };
 
 B.ProjectProduct = class ProjectProduct extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.projectproducts';
+    super('Projects.projectproducts', item);
   }
 };
 
 B.ProjectTemplate = class ProjectTemplate extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.projectemplates';
+    super('Projects.projectemplates', item);
   }
 };
 
 B.ProjectStage = class ProjectStage extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.stages';
+    super('Projects.stages', item);
   }
 };
 
 B.ProjectTaskTemplate = class ProjectTaskTemplate extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.tasktemplates';
+    super('Projects.tasktemplates', item);
   }
 };
 
 B.ProjectAsset = class ProjectAsset extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Projects.assets';
+    super('Projects.assets', item);
   }
 };
 
@@ -856,8 +845,7 @@ B.ProjectAsset = class ProjectAsset extends B.QueryItem {
 
 B.Quote = class Quote extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Sales.quotes';
+    super('Sales.quotes', item);
   }
 
   getProducts() {
@@ -869,15 +857,13 @@ B.Quote = class Quote extends B.QueryItem {
 
 B.CatalogProduct = class CatalogProduct extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Sales.products';
+    super('Sales.products', item);
   }
 };
 
 B.QuoteProduct = class QuoteProduct extends B.QueryItem {
   constructor(item) {
-    super(item);
-    this._table = 'Sales.quoteproducts';
+    super('Sales.quoteproducts', item);
   }
 
   getCatalogProduct() {
@@ -941,6 +927,8 @@ B.FormTemplates = new B.QueryFactory('Forms.templates', B.FormTemplate);
 B.JobGroups = new B.QueryFactory('Jobs.groups', B.JobGroup);
 B.JobProducts = new B.QueryFactory('Jobs.jobproducts', B.JobProduct);
 B.Jobs = new B.QueryFactory('Jobs.jobs', B.Job);
+B.Notes = new B.QueryFactory('Notes.notes', B.Note);
+B.Notebooks = new B.QueryFactory('Notes.notebooks', B.Notebook);
 B.ProjectActivities = new B.QueryFactory('Projects.projectactivities', B.ProjectActivity);
 B.ProjectAssetGroups = new B.QueryFactory('Projects.assetgroups', B.ProjectAssetGroup);
 B.ProjectAssets = new B.QueryFactory('Projects.assets', B.ProjectAsset);
