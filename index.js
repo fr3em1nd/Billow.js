@@ -4,7 +4,6 @@
 
 var B = {};
 
-B.VERSION = '1.6.5';
 B.VERSION = '1.6.6';
 
 B.DAYS = [
