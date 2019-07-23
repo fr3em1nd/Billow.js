@@ -272,7 +272,7 @@ B.query = {
     return Query.update(table, values, 'id=' + esc(id));
   },
 
-  _getName(item = {name: ''}) {
+  _getName(item = { name: '' }) {
     return item.name || item.productname;
   },
 
@@ -652,22 +652,22 @@ B.QueryItem = class QueryItem {
     });
   }
 
-  getLinkedForms() {B.logger.error('Not implemented - sorry!')}
-  getLinkedProjects() {B.logger.error('Not implemented - sorry!')}
-  getLinkedQuotes() {B.logger.error('Not implemented - sorry!')}
-  getLinkedDeals() {B.logger.error('Not implemented - sorry!')}
-  getLinkedContacts() {B.logger.error('Not implemented - sorry!')}
-  getLinkedCompanies() {B.logger.error('Not implemented - sorry!')}
-  getLinkedEvents() {B.logger.error('Not implemented - sorry!')}
-  getLinkedEquipment() {B.logger.error('Not implemented - sorry!')}
-  getLinkedFiles() {B.logger.error('Not implemented - sorry!')}
-  getLinkedTasks() {B.logger.error('Not implemented - sorry!')}
-  getLinkedNotes() {B.logger.error('Not implemented - sorry!')}
-  getLinkedProducts() {B.logger.error('Not implemented - sorry!')}
-  getLinkedServices() {B.logger.error('Not implemented - sorry!')}
-  getLinkedAssets() {B.logger.error('Not implemented - sorry!')}
-  getLinkedPunchItems() {B.logger.error('Not implemented - sorry!')}
-  getLinkedTimeEntries() {B.logger.error('Not implemented - sorry!')}
+  getLinkedForms() { B.logger.error('Not implemented - sorry!') }
+  getLinkedProjects() { B.logger.error('Not implemented - sorry!') }
+  getLinkedQuotes() { B.logger.error('Not implemented - sorry!') }
+  getLinkedDeals() { B.logger.error('Not implemented - sorry!') }
+  getLinkedContacts() { B.logger.error('Not implemented - sorry!') }
+  getLinkedCompanies() { B.logger.error('Not implemented - sorry!') }
+  getLinkedEvents() { B.logger.error('Not implemented - sorry!') }
+  getLinkedEquipment() { B.logger.error('Not implemented - sorry!') }
+  getLinkedFiles() { B.logger.error('Not implemented - sorry!') }
+  getLinkedTasks() { B.logger.error('Not implemented - sorry!') }
+  getLinkedNotes() { B.logger.error('Not implemented - sorry!') }
+  getLinkedProducts() { B.logger.error('Not implemented - sorry!') }
+  getLinkedServices() { B.logger.error('Not implemented - sorry!') }
+  getLinkedAssets() { B.logger.error('Not implemented - sorry!') }
+  getLinkedPunchItems() { B.logger.error('Not implemented - sorry!') }
+  getLinkedTimeEntries() { B.logger.error('Not implemented - sorry!') }
 
   toObject() {
     return B.util.quickClone(this._item);
@@ -1516,7 +1516,7 @@ B.util = {
   },
 
   merge(one = {}, two = {}, three = {}, four = {}, five = {}) {
-    return {...one, ...two, ...three, ...four, ...five};
+    return { ...one, ...two, ...three, ...four, ...five };
   },
 
   quickClone(obj = x`obj`) {
