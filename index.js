@@ -5,6 +5,33 @@
 var B = {};
 
 B.VERSION = '1.6.5';
+B.VERSION = '1.6.6';
+
+B.DAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
+B.MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 
 const x = (methodName) => {
   //
@@ -1242,15 +1269,48 @@ B.format = {
   },
 
   date(ms = B.date.now()) {
-    return Format.date(ms);
+    ms = B.int(ms);
+
+    if (!ms) {
+      return '';
+    }
+
+    var date = new Date(ms);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var now = new Date();
+    var thisYear = now.getFullYear();
+    var thisMonth = now.getMonth() + 1;
+    var thisDay = now.getDate();
+    var sep = '/';
+
+    if (year == thisYear) {
+      if (month == thisMonth && day == thisDay) {
+        return 'Today';
+      } else {
+        var shortMonth = B.format.monthName(month - 1).substr(0, 3);
+        return `${day} ${shortMonth}`;
+      }
+    } else {
+      return B.string.padStart(day, 2) + sep + B.string.padStart(month, 2) + sep + year;
+    }
   },
 
   time(ms = B.date.now()) {
-    return Format.time(ms);
+    return B.format.shortTime(ms);
   },
 
   dateTime(ms = B.date.now()) {
     return Format.datetime(ms);
+  },
+
+  dayName(index) {
+    return B.DAYS[index];
+  },
+
+  monthName(index) {
+    return B.MONTHS[index];
   },
 
   capitalise(item = x`item`) {

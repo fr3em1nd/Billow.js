@@ -86,6 +86,9 @@ function runTests() {
   assert(n._keys.includes('projectid'), true);
   assert(n._keys.includes('punchid'), true);
   assert(n._keys.includes('quoteid'), true);
+
+  assert(B.format.date() === 'Today', true);
+  assert(B.format.date(1) === '01/01/1970', true);
 };
 
 //
