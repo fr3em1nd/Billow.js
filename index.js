@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.6';
+B.VERSION = '1.6.7';
 
 B.DAYS = [
   'Sunday',
@@ -1375,7 +1375,7 @@ B.format = {
   },
 
   dateTime(ms = B.date.now()) {
-    return Format.datetime(ms);
+    return `${B.format.date(ms)} ${B.format.time(ms)}`;
   },
 
   dayName(index) {
