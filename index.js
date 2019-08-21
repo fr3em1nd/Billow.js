@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.6.7';
+B.VERSION = '1.6.8';
 
 B.DAYS = [
   'Sunday',
@@ -1135,8 +1135,42 @@ B.date = {
 
   today() {
     const now = new Date();
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return d.getTime();
+  },
+
+  weekStart() {
+    console.error('unimplemented');
+    return 0;
+  },
+
+  monthStart(ms = B.date.now()) {
+    const now = new Date(ms);
+    const d = new Date(now.getFullYear(), now.getMonth(), 1);
+    return d.getTime();
+  },
+
+  yearStart(ms = B.date.now()) {
+    const now = new Date(ms);
+    const d = new Date(now.getFullYear(), 0);
+    return d.getTime();
+  },
+
+  weekEnd() {
+    console.error('unimplemented');
+    return 0;
+  },
+
+  monthEnd(ms = B.date.now()) {
+    const now = new Date(ms);
+    const d = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return d.getTime();
+  },
+
+  yearEnd(ms = B.date.now()) {
+    const now = new Date(ms);
+    const d = new Date(now.getFullYear() + 1, 0);
+    return d.getTime() - 1;
   },
 
   //
@@ -1154,10 +1188,6 @@ B.date = {
     dateString = `${dateString[2]} ${dateString[1]} ${dateString[3]}`;
 
     return dateString;
-  },
-
-  dayOfWeek() {
-    //
   },
 };
 
