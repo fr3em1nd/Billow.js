@@ -63,3 +63,14 @@ test('B.format.distance()', () => {
 test('B.format.multiValue()', () => {
   expect(B.format.multiValue('one|two|three')).toBe('one, two, three');
 });
+
+test('B.format.boolean()', () => {
+  expect(B.format.yesOrNo(true)).toBe('Yes');
+  expect(B.format.trueOrFalse(true)).toBe('True');
+  expect(B.format.enabledOrDisabled(true)).toBe('Enabled');
+  expect(B.format.onOrOff(true)).toBe('On');
+  expect(B.format.yesOrNo(false)).toBe('No');
+  expect(B.format.trueOrFalse(false)).toBe('False');
+  expect(B.format.enabledOrDisabled(false)).toBe('Disabled');
+  expect(B.format.onOrOff(false)).toBe('Off');
+});

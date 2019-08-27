@@ -1496,6 +1496,26 @@ B.format = {
     const onclick = `event.cancelBubble=true;${_func("Engine.eval", func)}`;
     return `<a class=link onclick="${onclick}">${name}</a>`;
   },
+
+  boolean(condition = x`condition`, trueVal = `trueVal`, falseVal = x`falseVal`) {
+    return !!condition ? trueVal : falseVal;
+  },
+
+  yesOrNo(condition = x`condition`) {
+    return B.format.boolean(condition, 'Yes', 'No');
+  },
+
+  trueOrFalse(condition = x`condition`) {
+    return B.format.boolean(condition, 'True', 'False');
+  },
+
+  enabledOrDisabled(condition = x`condition`) {
+    return B.format.boolean(condition, 'Enabled', 'Disabled');
+  },
+
+  onOrOff(condition = x`condition`) {
+    return B.format.boolean(condition, 'On', 'Off');
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
