@@ -4,7 +4,7 @@
 
 var B = {};
 
-B.VERSION = '1.7.0';
+B.VERSION = '1.8.0';
 
 B.DAYS = [
   'Sunday',
