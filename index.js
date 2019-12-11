@@ -1,5 +1,5 @@
 //
-// Copyright Platformers (C) 2019
+// Copyright Billow Software (C) 2019
 //
 
 var B = {};

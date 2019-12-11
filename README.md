@@ -56,4 +56,4 @@ To be implemented...
 
 # License
 
-Copyright Platformers (C) 2019
+Copyright Billow Software (C) 2019
